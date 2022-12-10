@@ -3,17 +3,16 @@
 
 openapi: 3.0.3
 info:
-    title: Greeter API
+    title: RealWorld API
     description: The greeting service definition.
     version: 0.0.1
 paths:
-    /helloworld/{name}:
+    /realworld/{name}:
         get:
             tags:
-                - Greeter
-                - subgroup
+                - RealWorld
             description: Sends a greeting
-            operationId: Greeter_SayHello
+            operationId: RealWorld_SayHello
             parameters:
                 - name: name
                   in: path
@@ -26,14 +25,14 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/helloworld.v1.HelloReply'
+                                $ref: '#/components/schemas/realworld.v1.HelloReply'
 components:
     schemas:
-        helloworld.v1.HelloReply:
+        realworld.v1.HelloReply:
             type: object
             properties:
                 message:
                     type: string
             description: The response message containing the greetings
 tags:
-    - name: Greeter
+    - name: RealWorld
