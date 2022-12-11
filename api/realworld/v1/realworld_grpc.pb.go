@@ -28,21 +28,21 @@ type RealWorldClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*UserReply, error)
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*UserReply, error)
 	GetCurrentUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UserReply, error)
-	UpdateUser(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*UserReply, error)
+	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UserReply, error)
 	GetProfile(ctx context.Context, in *GetProfileRequest, opts ...grpc.CallOption) (*ProfileReply, error)
 	FollowUser(ctx context.Context, in *FollowUserRequest, opts ...grpc.CallOption) (*ProfileReply, error)
-	UnfollowUser(ctx context.Context, in *UnfollowUserRequest, opts ...grpc.CallOption) (*ProfileReply, error)
+	UnfollowUser(ctx context.Context, in *UnfollowUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ListArticles(ctx context.Context, in *ListArticlesRequest, opts ...grpc.CallOption) (*MultipleArticlesReply, error)
 	FeedArticles(ctx context.Context, in *FeedArticlesRequest, opts ...grpc.CallOption) (*MultipleArticlesReply, error)
 	GetArticle(ctx context.Context, in *GetArticleRequest, opts ...grpc.CallOption) (*SingleArticleReply, error)
-	CreateArticle(ctx context.Context, in *GetArticleRequest, opts ...grpc.CallOption) (*SingleArticleReply, error)
+	CreateArticle(ctx context.Context, in *CreateArticleRequest, opts ...grpc.CallOption) (*SingleArticleReply, error)
 	UpdateArticle(ctx context.Context, in *UpdateArticleRequest, opts ...grpc.CallOption) (*SingleArticleReply, error)
-	DeleteArticle(ctx context.Context, in *DeleteArticleRequest, opts ...grpc.CallOption) (*SingleArticleReply, error)
+	DeleteArticle(ctx context.Context, in *DeleteArticleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AddComment(ctx context.Context, in *AddCommentRequest, opts ...grpc.CallOption) (*SingleCommentReply, error)
 	GetComments(ctx context.Context, in *GetCommentsRequest, opts ...grpc.CallOption) (*MultipleCommentsReply, error)
-	DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*MultipleCommentsReply, error)
+	DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	FavoriteArticle(ctx context.Context, in *FavoriteArticleRequest, opts ...grpc.CallOption) (*SingleArticleReply, error)
-	UnfavoriteArticle(ctx context.Context, in *UnfavoriteArticleRequest, opts ...grpc.CallOption) (*SingleArticleReply, error)
+	UnfavoriteArticle(ctx context.Context, in *UnfavoriteArticleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetTags(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*TagListReply, error)
 }
 
@@ -81,7 +81,7 @@ func (c *realWorldClient) GetCurrentUser(ctx context.Context, in *emptypb.Empty,
 	return out, nil
 }
 
-func (c *realWorldClient) UpdateUser(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*UserReply, error) {
+func (c *realWorldClient) UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UserReply, error) {
 	out := new(UserReply)
 	err := c.cc.Invoke(ctx, "/realworld.v1.RealWorld/UpdateUser", in, out, opts...)
 	if err != nil {
@@ -108,8 +108,8 @@ func (c *realWorldClient) FollowUser(ctx context.Context, in *FollowUserRequest,
 	return out, nil
 }
 
-func (c *realWorldClient) UnfollowUser(ctx context.Context, in *UnfollowUserRequest, opts ...grpc.CallOption) (*ProfileReply, error) {
-	out := new(ProfileReply)
+func (c *realWorldClient) UnfollowUser(ctx context.Context, in *UnfollowUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/realworld.v1.RealWorld/UnfollowUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -144,7 +144,7 @@ func (c *realWorldClient) GetArticle(ctx context.Context, in *GetArticleRequest,
 	return out, nil
 }
 
-func (c *realWorldClient) CreateArticle(ctx context.Context, in *GetArticleRequest, opts ...grpc.CallOption) (*SingleArticleReply, error) {
+func (c *realWorldClient) CreateArticle(ctx context.Context, in *CreateArticleRequest, opts ...grpc.CallOption) (*SingleArticleReply, error) {
 	out := new(SingleArticleReply)
 	err := c.cc.Invoke(ctx, "/realworld.v1.RealWorld/CreateArticle", in, out, opts...)
 	if err != nil {
@@ -162,8 +162,8 @@ func (c *realWorldClient) UpdateArticle(ctx context.Context, in *UpdateArticleRe
 	return out, nil
 }
 
-func (c *realWorldClient) DeleteArticle(ctx context.Context, in *DeleteArticleRequest, opts ...grpc.CallOption) (*SingleArticleReply, error) {
-	out := new(SingleArticleReply)
+func (c *realWorldClient) DeleteArticle(ctx context.Context, in *DeleteArticleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/realworld.v1.RealWorld/DeleteArticle", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -189,8 +189,8 @@ func (c *realWorldClient) GetComments(ctx context.Context, in *GetCommentsReques
 	return out, nil
 }
 
-func (c *realWorldClient) DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*MultipleCommentsReply, error) {
-	out := new(MultipleCommentsReply)
+func (c *realWorldClient) DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/realworld.v1.RealWorld/DeleteComment", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -207,8 +207,8 @@ func (c *realWorldClient) FavoriteArticle(ctx context.Context, in *FavoriteArtic
 	return out, nil
 }
 
-func (c *realWorldClient) UnfavoriteArticle(ctx context.Context, in *UnfavoriteArticleRequest, opts ...grpc.CallOption) (*SingleArticleReply, error) {
-	out := new(SingleArticleReply)
+func (c *realWorldClient) UnfavoriteArticle(ctx context.Context, in *UnfavoriteArticleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/realworld.v1.RealWorld/UnfavoriteArticle", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -234,21 +234,21 @@ type RealWorldServer interface {
 	Login(context.Context, *LoginRequest) (*UserReply, error)
 	Register(context.Context, *RegisterRequest) (*UserReply, error)
 	GetCurrentUser(context.Context, *emptypb.Empty) (*UserReply, error)
-	UpdateUser(context.Context, *RegisterRequest) (*UserReply, error)
+	UpdateUser(context.Context, *UpdateUserRequest) (*UserReply, error)
 	GetProfile(context.Context, *GetProfileRequest) (*ProfileReply, error)
 	FollowUser(context.Context, *FollowUserRequest) (*ProfileReply, error)
-	UnfollowUser(context.Context, *UnfollowUserRequest) (*ProfileReply, error)
+	UnfollowUser(context.Context, *UnfollowUserRequest) (*emptypb.Empty, error)
 	ListArticles(context.Context, *ListArticlesRequest) (*MultipleArticlesReply, error)
 	FeedArticles(context.Context, *FeedArticlesRequest) (*MultipleArticlesReply, error)
 	GetArticle(context.Context, *GetArticleRequest) (*SingleArticleReply, error)
-	CreateArticle(context.Context, *GetArticleRequest) (*SingleArticleReply, error)
+	CreateArticle(context.Context, *CreateArticleRequest) (*SingleArticleReply, error)
 	UpdateArticle(context.Context, *UpdateArticleRequest) (*SingleArticleReply, error)
-	DeleteArticle(context.Context, *DeleteArticleRequest) (*SingleArticleReply, error)
+	DeleteArticle(context.Context, *DeleteArticleRequest) (*emptypb.Empty, error)
 	AddComment(context.Context, *AddCommentRequest) (*SingleCommentReply, error)
 	GetComments(context.Context, *GetCommentsRequest) (*MultipleCommentsReply, error)
-	DeleteComment(context.Context, *DeleteCommentRequest) (*MultipleCommentsReply, error)
+	DeleteComment(context.Context, *DeleteCommentRequest) (*emptypb.Empty, error)
 	FavoriteArticle(context.Context, *FavoriteArticleRequest) (*SingleArticleReply, error)
-	UnfavoriteArticle(context.Context, *UnfavoriteArticleRequest) (*SingleArticleReply, error)
+	UnfavoriteArticle(context.Context, *UnfavoriteArticleRequest) (*emptypb.Empty, error)
 	GetTags(context.Context, *emptypb.Empty) (*TagListReply, error)
 	mustEmbedUnimplementedRealWorldServer()
 }
@@ -266,7 +266,7 @@ func (UnimplementedRealWorldServer) Register(context.Context, *RegisterRequest) 
 func (UnimplementedRealWorldServer) GetCurrentUser(context.Context, *emptypb.Empty) (*UserReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCurrentUser not implemented")
 }
-func (UnimplementedRealWorldServer) UpdateUser(context.Context, *RegisterRequest) (*UserReply, error) {
+func (UnimplementedRealWorldServer) UpdateUser(context.Context, *UpdateUserRequest) (*UserReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
 }
 func (UnimplementedRealWorldServer) GetProfile(context.Context, *GetProfileRequest) (*ProfileReply, error) {
@@ -275,7 +275,7 @@ func (UnimplementedRealWorldServer) GetProfile(context.Context, *GetProfileReque
 func (UnimplementedRealWorldServer) FollowUser(context.Context, *FollowUserRequest) (*ProfileReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FollowUser not implemented")
 }
-func (UnimplementedRealWorldServer) UnfollowUser(context.Context, *UnfollowUserRequest) (*ProfileReply, error) {
+func (UnimplementedRealWorldServer) UnfollowUser(context.Context, *UnfollowUserRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnfollowUser not implemented")
 }
 func (UnimplementedRealWorldServer) ListArticles(context.Context, *ListArticlesRequest) (*MultipleArticlesReply, error) {
@@ -287,13 +287,13 @@ func (UnimplementedRealWorldServer) FeedArticles(context.Context, *FeedArticlesR
 func (UnimplementedRealWorldServer) GetArticle(context.Context, *GetArticleRequest) (*SingleArticleReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetArticle not implemented")
 }
-func (UnimplementedRealWorldServer) CreateArticle(context.Context, *GetArticleRequest) (*SingleArticleReply, error) {
+func (UnimplementedRealWorldServer) CreateArticle(context.Context, *CreateArticleRequest) (*SingleArticleReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateArticle not implemented")
 }
 func (UnimplementedRealWorldServer) UpdateArticle(context.Context, *UpdateArticleRequest) (*SingleArticleReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateArticle not implemented")
 }
-func (UnimplementedRealWorldServer) DeleteArticle(context.Context, *DeleteArticleRequest) (*SingleArticleReply, error) {
+func (UnimplementedRealWorldServer) DeleteArticle(context.Context, *DeleteArticleRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteArticle not implemented")
 }
 func (UnimplementedRealWorldServer) AddComment(context.Context, *AddCommentRequest) (*SingleCommentReply, error) {
@@ -302,13 +302,13 @@ func (UnimplementedRealWorldServer) AddComment(context.Context, *AddCommentReque
 func (UnimplementedRealWorldServer) GetComments(context.Context, *GetCommentsRequest) (*MultipleCommentsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetComments not implemented")
 }
-func (UnimplementedRealWorldServer) DeleteComment(context.Context, *DeleteCommentRequest) (*MultipleCommentsReply, error) {
+func (UnimplementedRealWorldServer) DeleteComment(context.Context, *DeleteCommentRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteComment not implemented")
 }
 func (UnimplementedRealWorldServer) FavoriteArticle(context.Context, *FavoriteArticleRequest) (*SingleArticleReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FavoriteArticle not implemented")
 }
-func (UnimplementedRealWorldServer) UnfavoriteArticle(context.Context, *UnfavoriteArticleRequest) (*SingleArticleReply, error) {
+func (UnimplementedRealWorldServer) UnfavoriteArticle(context.Context, *UnfavoriteArticleRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnfavoriteArticle not implemented")
 }
 func (UnimplementedRealWorldServer) GetTags(context.Context, *emptypb.Empty) (*TagListReply, error) {
@@ -382,7 +382,7 @@ func _RealWorld_GetCurrentUser_Handler(srv interface{}, ctx context.Context, dec
 }
 
 func _RealWorld_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RegisterRequest)
+	in := new(UpdateUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -394,7 +394,7 @@ func _RealWorld_UpdateUser_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/realworld.v1.RealWorld/UpdateUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RealWorldServer).UpdateUser(ctx, req.(*RegisterRequest))
+		return srv.(RealWorldServer).UpdateUser(ctx, req.(*UpdateUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -508,7 +508,7 @@ func _RealWorld_GetArticle_Handler(srv interface{}, ctx context.Context, dec fun
 }
 
 func _RealWorld_CreateArticle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetArticleRequest)
+	in := new(CreateArticleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -520,7 +520,7 @@ func _RealWorld_CreateArticle_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: "/realworld.v1.RealWorld/CreateArticle",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RealWorldServer).CreateArticle(ctx, req.(*GetArticleRequest))
+		return srv.(RealWorldServer).CreateArticle(ctx, req.(*CreateArticleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

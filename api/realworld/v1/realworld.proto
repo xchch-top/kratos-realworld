@@ -33,7 +33,7 @@ service RealWorld {
         };
     }
 
-    rpc UpdateUser (RegisterRequest) returns (UserReply) {
+    rpc UpdateUser (UpdateUserRequest) returns (UserReply) {
         option (google.api.http) = {
             put: "/api/users",
             body: "*",
@@ -53,7 +53,7 @@ service RealWorld {
         };
     }
 
-    rpc UnfollowUser (UnfollowUserRequest) returns (ProfileReply) {
+    rpc UnfollowUser (UnfollowUserRequest) returns (google.protobuf.Empty) {
         option (google.api.http) = {
             delete: "/api/profiles/{username}/follow",
         };
@@ -77,7 +77,7 @@ service RealWorld {
         };
     }
 
-    rpc CreateArticle (GetArticleRequest) returns (SingleArticleReply) {
+    rpc CreateArticle (CreateArticleRequest) returns (SingleArticleReply) {
         option (google.api.http) = {
             post: "/api/articles",
             body: "*",
@@ -91,7 +91,7 @@ service RealWorld {
         };
     }
 
-    rpc DeleteArticle (DeleteArticleRequest) returns (SingleArticleReply) {
+    rpc DeleteArticle (DeleteArticleRequest) returns (google.protobuf.Empty) {
         option (google.api.http) = {
             delete: "/api/articles/{slug}",
         };
@@ -111,7 +111,7 @@ service RealWorld {
         };
     }
 
-    rpc DeleteComment (DeleteCommentRequest) returns (MultipleCommentsReply) {
+    rpc DeleteComment (DeleteCommentRequest) returns (google.protobuf.Empty) {
         option (google.api.http) = {
             delete: "/api/articles/{slug}/comments/{id}",
         };
@@ -124,7 +124,7 @@ service RealWorld {
         };
     }
 
-    rpc UnfavoriteArticle (UnfavoriteArticleRequest) returns (SingleArticleReply) {
+    rpc UnfavoriteArticle (UnfavoriteArticleRequest) returns (google.protobuf.Empty) {
         option (google.api.http) = {
             delete: "/api/articles/{slug}/favorite",
         };

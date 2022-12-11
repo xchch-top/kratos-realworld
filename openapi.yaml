@@ -15,25 +15,25 @@ paths:
                 - name: tag
                   in: query
                   schema:
-                      type: string
+                    type: string
                 - name: author
                   in: query
                   schema:
-                      type: string
+                    type: string
                 - name: favorited
                   in: query
                   schema:
-                      type: string
+                    type: string
                 - name: limit
                   in: query
                   schema:
-                      type: integer
-                      format: uint32
+                    type: integer
+                    format: uint32
                 - name: offset
                   in: query
                   schema:
-                      type: integer
-                      format: uint32
+                    type: integer
+                    format: uint32
             responses:
                 "200":
                     description: OK
@@ -49,7 +49,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/realworld.v1.GetArticleRequest'
+                            $ref: '#/components/schemas/realworld.v1.CreateArticleRequest'
                 required: true
             responses:
                 "200":
@@ -67,13 +67,13 @@ paths:
                 - name: limit
                   in: query
                   schema:
-                      type: integer
-                      format: uint32
+                    type: integer
+                    format: uint32
                 - name: offset
                   in: query
                   schema:
-                      type: integer
-                      format: uint32
+                    type: integer
+                    format: uint32
             responses:
                 "200":
                     description: OK
@@ -91,7 +91,7 @@ paths:
                   in: path
                   required: true
                   schema:
-                      type: string
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -108,7 +108,7 @@ paths:
                   in: path
                   required: true
                   schema:
-                      type: string
+                    type: string
             requestBody:
                 content:
                     application/json:
@@ -131,14 +131,11 @@ paths:
                   in: path
                   required: true
                   schema:
-                      type: string
+                    type: string
             responses:
                 "200":
                     description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/realworld.v1.SingleArticleReply'
+                    content: {}
     /api/articles/{slug}/comments:
         post:
             tags:
@@ -149,7 +146,7 @@ paths:
                   in: path
                   required: true
                   schema:
-                      type: string
+                    type: string
             requestBody:
                 content:
                     application/json:
@@ -173,20 +170,17 @@ paths:
                   in: path
                   required: true
                   schema:
-                      type: string
+                    type: string
                 - name: id
                   in: path
                   required: true
                   schema:
-                      type: integer
-                      format: uint64
+                    type: integer
+                    format: uint64
             responses:
                 "200":
                     description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/realworld.v1.MultipleCommentsReply'
+                    content: {}
     /api/articles/{slug}/favorite:
         post:
             tags:
@@ -197,7 +191,7 @@ paths:
                   in: path
                   required: true
                   schema:
-                      type: string
+                    type: string
             requestBody:
                 content:
                     application/json:
@@ -220,14 +214,11 @@ paths:
                   in: path
                   required: true
                   schema:
-                      type: string
+                    type: string
             responses:
                 "200":
                     description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/realworld.v1.SingleArticleReply'
+                    content: {}
     /api/profiles/{username}:
         get:
             tags:
@@ -238,7 +229,7 @@ paths:
                   in: path
                   required: true
                   schema:
-                      type: string
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -256,7 +247,7 @@ paths:
                   in: path
                   required: true
                   schema:
-                      type: string
+                    type: string
             requestBody:
                 content:
                     application/json:
@@ -279,14 +270,11 @@ paths:
                   in: path
                   required: true
                   schema:
-                      type: string
+                    type: string
             responses:
                 "200":
                     description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/realworld.v1.ProfileReply'
+                    content: {}
     /api/tags:
         get:
             tags:
@@ -319,7 +307,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/realworld.v1.RegisterRequest'
+                            $ref: '#/components/schemas/realworld.v1.UpdateUserRequest'
                 required: true
             responses:
                 "200":
@@ -433,6 +421,24 @@ components:
                     type: string
                 author:
                     $ref: '#/components/schemas/realworld.v1.Author'
+        realworld.v1.CreateArticleRequest:
+            type: object
+            properties:
+                article:
+                    $ref: '#/components/schemas/realworld.v1.CreateArticleRequest_Article'
+        realworld.v1.CreateArticleRequest_Article:
+            type: object
+            properties:
+                title:
+                    type: string
+                description:
+                    type: string
+                body:
+                    type: string
+                tagList:
+                    type: array
+                    items:
+                        type: string
         realworld.v1.FavoriteArticleRequest:
             type: object
             properties:
@@ -442,11 +448,6 @@ components:
             type: object
             properties:
                 username:
-                    type: string
-        realworld.v1.GetArticleRequest:
-            type: object
-            properties:
-                slug:
                     type: string
         realworld.v1.GetCommentsRequest:
             type: object
@@ -549,6 +550,11 @@ components:
                     type: array
                     items:
                         type: string
+        realworld.v1.UpdateUserRequest:
+            type: object
+            properties:
+                user:
+                    $ref: '#/components/schemas/realworld.v1.User'
         realworld.v1.User:
             type: object
             properties:

@@ -42,9 +42,9 @@ const OperationRealWorldUpdateUser = "/realworld.v1.RealWorld/UpdateUser"
 
 type RealWorldHTTPServer interface {
 	AddComment(context.Context, *AddCommentRequest) (*SingleCommentReply, error)
-	CreateArticle(context.Context, *GetArticleRequest) (*SingleArticleReply, error)
-	DeleteArticle(context.Context, *DeleteArticleRequest) (*SingleArticleReply, error)
-	DeleteComment(context.Context, *DeleteCommentRequest) (*MultipleCommentsReply, error)
+	CreateArticle(context.Context, *CreateArticleRequest) (*SingleArticleReply, error)
+	DeleteArticle(context.Context, *DeleteArticleRequest) (*emptypb.Empty, error)
+	DeleteComment(context.Context, *DeleteCommentRequest) (*emptypb.Empty, error)
 	FavoriteArticle(context.Context, *FavoriteArticleRequest) (*SingleArticleReply, error)
 	FeedArticles(context.Context, *FeedArticlesRequest) (*MultipleArticlesReply, error)
 	FollowUser(context.Context, *FollowUserRequest) (*ProfileReply, error)
@@ -56,10 +56,10 @@ type RealWorldHTTPServer interface {
 	ListArticles(context.Context, *ListArticlesRequest) (*MultipleArticlesReply, error)
 	Login(context.Context, *LoginRequest) (*UserReply, error)
 	Register(context.Context, *RegisterRequest) (*UserReply, error)
-	UnfavoriteArticle(context.Context, *UnfavoriteArticleRequest) (*SingleArticleReply, error)
-	UnfollowUser(context.Context, *UnfollowUserRequest) (*ProfileReply, error)
+	UnfavoriteArticle(context.Context, *UnfavoriteArticleRequest) (*emptypb.Empty, error)
+	UnfollowUser(context.Context, *UnfollowUserRequest) (*emptypb.Empty, error)
 	UpdateArticle(context.Context, *UpdateArticleRequest) (*SingleArticleReply, error)
-	UpdateUser(context.Context, *RegisterRequest) (*UserReply, error)
+	UpdateUser(context.Context, *UpdateUserRequest) (*UserReply, error)
 }
 
 func RegisterRealWorldHTTPServer(s *http.Server, srv RealWorldHTTPServer) {
@@ -144,13 +144,13 @@ func _RealWorld_GetCurrentUser0_HTTP_Handler(srv RealWorldHTTPServer) func(ctx h
 
 func _RealWorld_UpdateUser0_HTTP_Handler(srv RealWorldHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in RegisterRequest
+		var in UpdateUserRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationRealWorldUpdateUser)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.UpdateUser(ctx, req.(*RegisterRequest))
+			return srv.UpdateUser(ctx, req.(*UpdateUserRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -222,7 +222,7 @@ func _RealWorld_UnfollowUser0_HTTP_Handler(srv RealWorldHTTPServer) func(ctx htt
 		if err != nil {
 			return err
 		}
-		reply := out.(*ProfileReply)
+		reply := out.(*emptypb.Empty)
 		return ctx.Result(200, reply)
 	}
 }
@@ -289,13 +289,13 @@ func _RealWorld_GetArticle0_HTTP_Handler(srv RealWorldHTTPServer) func(ctx http.
 
 func _RealWorld_CreateArticle0_HTTP_Handler(srv RealWorldHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GetArticleRequest
+		var in CreateArticleRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationRealWorldCreateArticle)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.CreateArticle(ctx, req.(*GetArticleRequest))
+			return srv.CreateArticle(ctx, req.(*CreateArticleRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -345,7 +345,7 @@ func _RealWorld_DeleteArticle0_HTTP_Handler(srv RealWorldHTTPServer) func(ctx ht
 		if err != nil {
 			return err
 		}
-		reply := out.(*SingleArticleReply)
+		reply := out.(*emptypb.Empty)
 		return ctx.Result(200, reply)
 	}
 }
@@ -411,7 +411,7 @@ func _RealWorld_DeleteComment0_HTTP_Handler(srv RealWorldHTTPServer) func(ctx ht
 		if err != nil {
 			return err
 		}
-		reply := out.(*MultipleCommentsReply)
+		reply := out.(*emptypb.Empty)
 		return ctx.Result(200, reply)
 	}
 }
@@ -455,7 +455,7 @@ func _RealWorld_UnfavoriteArticle0_HTTP_Handler(srv RealWorldHTTPServer) func(ct
 		if err != nil {
 			return err
 		}
-		reply := out.(*SingleArticleReply)
+		reply := out.(*emptypb.Empty)
 		return ctx.Result(200, reply)
 	}
 }
@@ -481,9 +481,9 @@ func _RealWorld_GetTags0_HTTP_Handler(srv RealWorldHTTPServer) func(ctx http.Con
 
 type RealWorldHTTPClient interface {
 	AddComment(ctx context.Context, req *AddCommentRequest, opts ...http.CallOption) (rsp *SingleCommentReply, err error)
-	CreateArticle(ctx context.Context, req *GetArticleRequest, opts ...http.CallOption) (rsp *SingleArticleReply, err error)
-	DeleteArticle(ctx context.Context, req *DeleteArticleRequest, opts ...http.CallOption) (rsp *SingleArticleReply, err error)
-	DeleteComment(ctx context.Context, req *DeleteCommentRequest, opts ...http.CallOption) (rsp *MultipleCommentsReply, err error)
+	CreateArticle(ctx context.Context, req *CreateArticleRequest, opts ...http.CallOption) (rsp *SingleArticleReply, err error)
+	DeleteArticle(ctx context.Context, req *DeleteArticleRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	DeleteComment(ctx context.Context, req *DeleteCommentRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	FavoriteArticle(ctx context.Context, req *FavoriteArticleRequest, opts ...http.CallOption) (rsp *SingleArticleReply, err error)
 	FeedArticles(ctx context.Context, req *FeedArticlesRequest, opts ...http.CallOption) (rsp *MultipleArticlesReply, err error)
 	FollowUser(ctx context.Context, req *FollowUserRequest, opts ...http.CallOption) (rsp *ProfileReply, err error)
@@ -495,10 +495,10 @@ type RealWorldHTTPClient interface {
 	ListArticles(ctx context.Context, req *ListArticlesRequest, opts ...http.CallOption) (rsp *MultipleArticlesReply, err error)
 	Login(ctx context.Context, req *LoginRequest, opts ...http.CallOption) (rsp *UserReply, err error)
 	Register(ctx context.Context, req *RegisterRequest, opts ...http.CallOption) (rsp *UserReply, err error)
-	UnfavoriteArticle(ctx context.Context, req *UnfavoriteArticleRequest, opts ...http.CallOption) (rsp *SingleArticleReply, err error)
-	UnfollowUser(ctx context.Context, req *UnfollowUserRequest, opts ...http.CallOption) (rsp *ProfileReply, err error)
+	UnfavoriteArticle(ctx context.Context, req *UnfavoriteArticleRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	UnfollowUser(ctx context.Context, req *UnfollowUserRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	UpdateArticle(ctx context.Context, req *UpdateArticleRequest, opts ...http.CallOption) (rsp *SingleArticleReply, err error)
-	UpdateUser(ctx context.Context, req *RegisterRequest, opts ...http.CallOption) (rsp *UserReply, err error)
+	UpdateUser(ctx context.Context, req *UpdateUserRequest, opts ...http.CallOption) (rsp *UserReply, err error)
 }
 
 type RealWorldHTTPClientImpl struct {
@@ -522,7 +522,7 @@ func (c *RealWorldHTTPClientImpl) AddComment(ctx context.Context, in *AddComment
 	return &out, err
 }
 
-func (c *RealWorldHTTPClientImpl) CreateArticle(ctx context.Context, in *GetArticleRequest, opts ...http.CallOption) (*SingleArticleReply, error) {
+func (c *RealWorldHTTPClientImpl) CreateArticle(ctx context.Context, in *CreateArticleRequest, opts ...http.CallOption) (*SingleArticleReply, error) {
 	var out SingleArticleReply
 	pattern := "/api/articles"
 	path := binding.EncodeURL(pattern, in, false)
@@ -535,8 +535,8 @@ func (c *RealWorldHTTPClientImpl) CreateArticle(ctx context.Context, in *GetArti
 	return &out, err
 }
 
-func (c *RealWorldHTTPClientImpl) DeleteArticle(ctx context.Context, in *DeleteArticleRequest, opts ...http.CallOption) (*SingleArticleReply, error) {
-	var out SingleArticleReply
+func (c *RealWorldHTTPClientImpl) DeleteArticle(ctx context.Context, in *DeleteArticleRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
 	pattern := "/api/articles/{slug}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationRealWorldDeleteArticle))
@@ -548,8 +548,8 @@ func (c *RealWorldHTTPClientImpl) DeleteArticle(ctx context.Context, in *DeleteA
 	return &out, err
 }
 
-func (c *RealWorldHTTPClientImpl) DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...http.CallOption) (*MultipleCommentsReply, error) {
-	var out MultipleCommentsReply
+func (c *RealWorldHTTPClientImpl) DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
 	pattern := "/api/articles/{slug}/comments/{id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationRealWorldDeleteComment))
@@ -704,8 +704,8 @@ func (c *RealWorldHTTPClientImpl) Register(ctx context.Context, in *RegisterRequ
 	return &out, err
 }
 
-func (c *RealWorldHTTPClientImpl) UnfavoriteArticle(ctx context.Context, in *UnfavoriteArticleRequest, opts ...http.CallOption) (*SingleArticleReply, error) {
-	var out SingleArticleReply
+func (c *RealWorldHTTPClientImpl) UnfavoriteArticle(ctx context.Context, in *UnfavoriteArticleRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
 	pattern := "/api/articles/{slug}/favorite"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationRealWorldUnfavoriteArticle))
@@ -717,8 +717,8 @@ func (c *RealWorldHTTPClientImpl) UnfavoriteArticle(ctx context.Context, in *Unf
 	return &out, err
 }
 
-func (c *RealWorldHTTPClientImpl) UnfollowUser(ctx context.Context, in *UnfollowUserRequest, opts ...http.CallOption) (*ProfileReply, error) {
-	var out ProfileReply
+func (c *RealWorldHTTPClientImpl) UnfollowUser(ctx context.Context, in *UnfollowUserRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
 	pattern := "/api/profiles/{username}/follow"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationRealWorldUnfollowUser))
@@ -743,7 +743,7 @@ func (c *RealWorldHTTPClientImpl) UpdateArticle(ctx context.Context, in *UpdateA
 	return &out, err
 }
 
-func (c *RealWorldHTTPClientImpl) UpdateUser(ctx context.Context, in *RegisterRequest, opts ...http.CallOption) (*UserReply, error) {
+func (c *RealWorldHTTPClientImpl) UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...http.CallOption) (*UserReply, error) {
 	var out UserReply
 	pattern := "/api/users"
 	path := binding.EncodeURL(pattern, in, false)
