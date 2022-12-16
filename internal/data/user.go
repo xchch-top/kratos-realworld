@@ -23,6 +23,11 @@ func (u userRepo) CreateUser(ctx context.Context, user *biz.User) error {
 	panic("implement me")
 }
 
+func (u userRepo) GetUserByEmail(ctx context.Context, email string) (*biz.User, error) {
+	// TODO implement me
+	panic("implement me")
+}
+
 type profileRepo struct {
 	data *Data
 	log  *log.Helper
