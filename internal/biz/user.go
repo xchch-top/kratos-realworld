@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
 	"golang.org/x/crypto/bcrypt"
 	"kratos-realworld/internal/conf"
@@ -90,7 +89,8 @@ func (uc *UserUseCase) Login(ctx context.Context, email string, password string)
 	}
 
 	if !verifyPassword(u.PasswordHash, password) {
-		return nil, errors.New(fmt.Sprintf("用户不存在或密码错误"))
+		// 项目中统一使用kratos的error包
+		return nil, errors.New("用户不存在或密码错误")
 	}
 	return &UserLogin{
 		Email:    u.Email,

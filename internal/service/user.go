@@ -28,9 +28,18 @@ func (s *RealworldService) Login(ctx context.Context, req *realworld.LoginReques
 		return nil, errors.NewHttpError(422, "email", "用户被锁定")
 	}
 
+	ul, err := s.uc.Login(ctx, req.User.Email, req.User.Password)
+	if err != nil {
+		return nil, err
+	}
+
 	return &realworld.UserReply{
 		User: &realworld.User{
-			Username: "boom",
+			Email:    ul.Email,
+			Username: ul.Username,
+			Bio:      ul.Bio,
+			Image:    ul.Image,
+			Token:    ul.Token,
 		},
 	}, nil
 }

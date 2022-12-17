@@ -29,8 +29,14 @@ func FromError(err error) *HttpError {
 	if err == nil {
 		return nil
 	}
+	// 是HttpError类型
 	if se := new(HttpError); errors.As(err, &se) {
 		return se
 	}
-	return NewHttpError(http.StatusInternalServerError, "internal", "error")
+	// 是kratos封装的error
+	if se := new(errors.Error); errors.As(err, &se) {
+		return NewHttpError(int(se.Code), se.Reason, se.Message)
+	}
+	// 是原生error
+	return NewHttpError(http.StatusInternalServerError, "internal", err.Error())
 }
