@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/golang/protobuf/ptypes/empty"
 	realworld "kratos-realworld/api/realworld/v1"
+	"kratos-realworld/internal/errors"
 )
 
 func (s *RealworldService) Register(ctx context.Context, req *realworld.RegisterRequest) (*realworld.UserReply, error) {
@@ -21,6 +22,11 @@ func (s *RealworldService) Register(ctx context.Context, req *realworld.Register
 }
 
 func (s *RealworldService) Login(ctx context.Context, req *realworld.LoginRequest) (*realworld.UserReply, error) {
+	if req.User.Email == "locked" {
+		// 错误时返回用例: {"errors":{"email":"用户被锁定"}}
+		return nil, errors.NewHttpError(422, "email", "用户被锁定")
+	}
+
 	return &realworld.UserReply{
 		User: &realworld.User{
 			Username: "boom",
