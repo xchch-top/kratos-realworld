@@ -5,10 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 	"kratos-realworld/internal/conf"
-	"time"
+	"kratos-realworld/internal/pkg/middleware/auth"
 )
 
 type User struct {
@@ -80,7 +79,7 @@ func (uc *UserUseCase) Register(ctx context.Context, username string, email stri
 	return &UserLogin{
 		Email:    email,
 		Username: username,
-		Token:    GenerateToken(uc.jc.Secret, username),
+		Token:    auth.GenerateToken(uc.jc.Secret, username),
 	}, nil
 }
 
@@ -98,19 +97,6 @@ func (uc *UserUseCase) Login(ctx context.Context, email string, password string)
 		Username: u.Username,
 		Bio:      u.Bio,
 		Image:    u.Image,
-		Token:    GenerateToken(uc.jc.Secret, u.Username),
+		Token:    auth.GenerateToken(uc.jc.Secret, u.Username),
 	}, nil
-}
-
-func GenerateToken(secret string, username string) string {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username": username,
-		"nbf":      time.Date(2015, 10, 10, 12, 0, 0, 0, time.UTC).Unix(),
-	})
-	tokenString, err := token.SignedString([]byte(secret))
-	if err != nil {
-		panic(err)
-	}
-
-	return tokenString
 }

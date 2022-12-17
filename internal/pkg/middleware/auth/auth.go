@@ -9,6 +9,7 @@ import (
 	"github.com/go-kratos/kratos/v2/transport"
 	"github.com/golang-jwt/jwt/v4"
 	"strings"
+	"time"
 )
 
 func NewSkipRouterMatcher() selector.MatchFunc {
@@ -53,4 +54,17 @@ func JwtAuth(secret string) middleware.Middleware {
 			return handler(ctx, req)
 		}
 	}
+}
+
+func GenerateToken(secret string, username string) string {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"username":  username,
+		"timestamp": time.Now().UTC(),
+	})
+	tokenString, err := token.SignedString([]byte(secret))
+	if err != nil {
+		panic(err)
+	}
+
+	return tokenString
 }

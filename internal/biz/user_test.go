@@ -3,6 +3,7 @@ package biz
 import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/stretchr/testify/assert"
+	"kratos-realworld/internal/pkg/middleware/auth"
 	"testing"
 )
 
@@ -48,6 +49,6 @@ func Test_VerifyPassword(t *testing.T) {
 }
 
 func Test_GenerateToken(t *testing.T) {
-	tokenString := GenerateToken("secret", "zhang3")
+	tokenString := auth.GenerateToken("secret", "zhang3")
 	log.Info(tokenString)
 }
