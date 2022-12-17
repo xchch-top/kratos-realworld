@@ -6,3 +6,6 @@ realworld的git地址 https://github.com/gothinkster/realworld
 realworld的api地址 https://realworld-docs.netlify.app/docs/intro
 realworld的前端地址 https://realworld-docs.netlify.app/docs/intro
 json-to-protoc工具 https://json-to-proto.github.io/
+
+docker构建的命令 docker build -t kratos-realworld .
+容器的启动命令 docker run -p 8000:8000 -v /opt/kratos-realworld/configs:/data/conf -d --name kratos-realworld kratos-realworld:latest
