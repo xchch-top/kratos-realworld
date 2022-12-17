@@ -15,7 +15,7 @@ type User struct {
 	Username     string
 	Bio          string
 	Image        string
-	PassWordHash string
+	PasswordHash string
 }
 
 type UserLogin struct {
@@ -27,7 +27,7 @@ type UserLogin struct {
 }
 
 type UserRepo interface {
-	CreateUser(ctx context.Context, user *User) error
+	CreateUser(ctx context.Context, u *User) error
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 }
 
@@ -69,7 +69,7 @@ func (uc *UserUseCase) Register(ctx context.Context, username string, email stri
 	u := &User{
 		Email:        email,
 		Username:     username,
-		PassWordHash: hashPassword(password),
+		PasswordHash: hashPassword(password),
 	}
 	err := uc.ur.CreateUser(ctx, u)
 	if err != nil {
@@ -89,7 +89,7 @@ func (uc *UserUseCase) Login(ctx context.Context, email string, password string)
 		return nil, err
 	}
 
-	if !verifyPassword(u.PassWordHash, password) {
+	if !verifyPassword(u.PasswordHash, password) {
 		return nil, errors.New(fmt.Sprintf("用户不存在或密码错误"))
 	}
 	return &UserLogin{

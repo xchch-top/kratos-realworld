@@ -1,8 +1,9 @@
 package errors
 
 import (
-	"errors"
 	"fmt"
+	"github.com/go-kratos/kratos/v2/errors"
+	"net/http"
 )
 
 type HttpError struct {
@@ -31,5 +32,5 @@ func FromError(err error) *HttpError {
 	if se := new(HttpError); errors.As(err, &se) {
 		return se
 	}
-	return &HttpError{}
+	return NewHttpError(http.StatusInternalServerError, "internal", "error")
 }

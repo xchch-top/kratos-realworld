@@ -8,13 +8,14 @@ import (
 )
 
 func (s *RealworldService) Register(ctx context.Context, req *realworld.RegisterRequest) (*realworld.UserReply, error) {
-	u, err := s.uc.Register(ctx, req.User.Username, req.User.Username, req.User.Password)
+	u, err := s.uc.Register(ctx, req.User.Username, req.User.Email, req.User.Password)
 	if err != nil {
 		return nil, err
 	}
 
 	return &realworld.UserReply{
 		User: &realworld.User{
+			Email:    u.Email,
 			Username: u.Username,
 			Token:    u.Token,
 		},
