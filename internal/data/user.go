@@ -19,8 +19,7 @@ func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 }
 
 func (u userRepo) CreateUser(ctx context.Context, user *biz.User) error {
-	// TODO implement me
-	panic("implement me")
+	return nil
 }
 
 func (u userRepo) GetUserByEmail(ctx context.Context, email string) (*biz.User, error) {

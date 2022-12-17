@@ -7,7 +7,17 @@ import (
 )
 
 func (s *RealworldService) Register(ctx context.Context, req *realworld.RegisterRequest) (*realworld.UserReply, error) {
-	return nil, nil
+	u, err := s.uc.Register(ctx, req.User.Username, req.User.Username, req.User.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	return &realworld.UserReply{
+		User: &realworld.User{
+			Username: u.Username,
+			Token:    u.Token,
+		},
+	}, nil
 }
 
 func (s *RealworldService) Login(ctx context.Context, req *realworld.LoginRequest) (*realworld.UserReply, error) {

@@ -1,6 +1,7 @@
 package biz
 
 import (
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -44,4 +45,9 @@ func Test_VerifyPassword(t *testing.T) {
 			assert.Equal(t, tc.result, result)
 		})
 	}
+}
+
+func Test_GenerateToken(t *testing.T) {
+	tokenString := GenerateToken("secret", "zhang3")
+	log.Info(tokenString)
 }

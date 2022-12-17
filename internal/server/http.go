@@ -1,8 +1,10 @@
 package server
 
 import (
+	"github.com/go-kratos/kratos/v2/middleware/selector"
 	realworld "kratos-realworld/api/realworld/v1"
 	"kratos-realworld/internal/conf"
+	"kratos-realworld/internal/pkg/middleware/auth"
 	"kratos-realworld/internal/service"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -11,10 +13,11 @@ import (
 )
 
 // NewHTTPServer new a HTTP server.
-func NewHTTPServer(c *conf.Server, greeter *service.RealworldService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Server, jc *conf.Jwt, greeter *service.RealworldService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
+			selector.Server(auth.JwtAuth(jc.Secret)).Match(auth.NewSkipRouterMatcher()).Build(),
 		),
 	}
 	if c.Http.Network != "" {
