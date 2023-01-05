@@ -4,8 +4,18 @@ kratos的git地址https://github.com/go-kratos/kratos
 kratos的doc地址 https://go-kratos.dev/docs/getting-started/start/
 realworld的git地址 https://github.com/gothinkster/realworld
 realworld的api地址 https://realworld-docs.netlify.app/docs/intro
-realworld的前端地址 https://realworld-docs.netlify.app/docs/intro
+realworld的前端地址 https://github.com/angelguzmaning/ts-redux-react-realworld-example-app
 json-to-protoc工具 https://json-to-proto.github.io/
 
 docker构建的命令 docker build -t kratos-realworld .
 容器的启动命令 docker run -p 8000:8000 -v /opt/kratos-realworld/configs:/data/conf -d --name kratos-realworld kratos-realworld:latest
+
+openapi的使用 https://go-kratos.dev/docs/guide/openapi
+在 https://editor.swagger.io/ 页面左侧粘贴openapi的定义
+
+注册http接口
+代码入口是main方法中调用wireApp方法, 最终调用到realworld_http.pb.go文件中RegisterRealWorldHTTPServer()方法, 方法中注册http接口
+注册grpc接口
+代码入口是main方法中调用wireApp方法, 最终调用到realworld_grpc.pb.go文件中RegisterRealWorldServer()方法
+
+安装cnpm https://cloud.tencent.com/developer/article/2151848

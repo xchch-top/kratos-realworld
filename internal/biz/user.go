@@ -2,7 +2,7 @@ package biz
 
 import (
 	"context"
-	"errors"
+	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"golang.org/x/crypto/bcrypt"
 	"kratos-realworld/internal/conf"
@@ -70,7 +70,18 @@ func (uc *UserUseCase) Register(ctx context.Context, username string, email stri
 		Username:     username,
 		PasswordHash: hashPassword(password),
 	}
-	err := uc.ur.CreateUser(ctx, u)
+
+	// 判断邮箱是否已经注册过
+	uByEmail, err := uc.ur.GetUserByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+	if uByEmail != nil {
+		return nil, errors.InternalServer("email has bean registered", "邮箱已经被注册过")
+	}
+
+	// 注册用户
+	err = uc.ur.CreateUser(ctx, u)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +101,7 @@ func (uc *UserUseCase) Login(ctx context.Context, email string, password string)
 
 	if !verifyPassword(u.PasswordHash, password) {
 		// 项目中统一使用kratos的error包
-		return nil, errors.New("用户不存在或密码错误")
+		return nil, errors.InternalServer("user or password error", "用户不存在或密码错误")
 	}
 	return &UserLogin{
 		Email:    u.Email,

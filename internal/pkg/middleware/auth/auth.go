@@ -44,7 +44,8 @@ func JwtAuth(secret string) middleware.Middleware {
 					return nil, err
 				}
 
-				if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+				claims, ok := token.Claims.(jwt.MapClaims)
+				if ok && token.Valid {
 					log.Info("username: ", claims["username"])
 				} else {
 					return nil, err
