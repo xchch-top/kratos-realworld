@@ -13,14 +13,14 @@ option go_package = "kratos-realworld/api/realworld/v1;v1";
 service RealWorld {
     // 参考kratos文档 https://go-kratos.dev/docs/component/api
     // realworld中Login接口定义 https://realworld-docs.netlify.app/docs/specs/backend-specs/endpoints#Login
-    rpc Login (LoginRequest) returns (UserReply) {
+    rpc Login (LoginRequest) returns (UserLoginReply) {
         option (google.api.http) = {
             post: "/api/users/login",
             body: "*",
         };
     }
 
-    rpc Register (RegisterRequest) returns (UserReply) {
+    rpc Register (RegisterRequest) returns (UserLoginReply) {
         option (google.api.http) = {
             post: "/api/users",
             body: "*",
@@ -33,9 +33,9 @@ service RealWorld {
         };
     }
 
-    rpc UpdateUser (UpdateUserRequest) returns (UserReply) {
+    rpc UpdateUser (User) returns (UserLoginReply) {
         option (google.api.http) = {
-            put: "/api/users",
+            put: "/api/user",
             body: "*",
         };
     }
@@ -137,13 +137,23 @@ service RealWorld {
     }
 }
 
+message UserLoginReply {
+    User user = 1;
+
+    message User {
+        string email = 1;
+        string token = 2;
+        string username = 3;
+        string bio = 4;
+        string image = 5;
+    }
+}
+
 message User {
-    uint64 Id = 1;
-    string email = 2;
-    string token = 3;
-    string username = 4;
-    string bio = 5;
-    string image = 6;
+    string email = 1;
+    string username = 2;
+    string bio = 3;
+    string image = 4;
 }
 
 message UserReply {
@@ -227,10 +237,6 @@ message RegisterRequest {
         string email = 2;
         string password = 3;
     }
-}
-
-message UpdateUserRequest {
-    User user = 1;
 }
 
 message GetProfileRequest {

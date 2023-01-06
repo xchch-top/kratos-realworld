@@ -25,10 +25,10 @@ const _ = grpc.SupportPackageIsVersion7
 type RealWorldClient interface {
 	// 参考kratos文档 https://go-kratos.dev/docs/component/api
 	// realworld中Login接口定义 https://realworld-docs.netlify.app/docs/specs/backend-specs/endpoints#Login
-	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*UserReply, error)
-	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*UserReply, error)
+	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*UserLoginReply, error)
+	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*UserLoginReply, error)
 	GetCurrentUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UserReply, error)
-	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UserReply, error)
+	UpdateUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*UserLoginReply, error)
 	GetProfile(ctx context.Context, in *GetProfileRequest, opts ...grpc.CallOption) (*ProfileReply, error)
 	FollowUser(ctx context.Context, in *FollowUserRequest, opts ...grpc.CallOption) (*ProfileReply, error)
 	UnfollowUser(ctx context.Context, in *UnfollowUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -54,8 +54,8 @@ func NewRealWorldClient(cc grpc.ClientConnInterface) RealWorldClient {
 	return &realWorldClient{cc}
 }
 
-func (c *realWorldClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*UserReply, error) {
-	out := new(UserReply)
+func (c *realWorldClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*UserLoginReply, error) {
+	out := new(UserLoginReply)
 	err := c.cc.Invoke(ctx, "/realworld.v1.RealWorld/Login", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -63,8 +63,8 @@ func (c *realWorldClient) Login(ctx context.Context, in *LoginRequest, opts ...g
 	return out, nil
 }
 
-func (c *realWorldClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*UserReply, error) {
-	out := new(UserReply)
+func (c *realWorldClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*UserLoginReply, error) {
+	out := new(UserLoginReply)
 	err := c.cc.Invoke(ctx, "/realworld.v1.RealWorld/Register", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -81,8 +81,8 @@ func (c *realWorldClient) GetCurrentUser(ctx context.Context, in *emptypb.Empty,
 	return out, nil
 }
 
-func (c *realWorldClient) UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UserReply, error) {
-	out := new(UserReply)
+func (c *realWorldClient) UpdateUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*UserLoginReply, error) {
+	out := new(UserLoginReply)
 	err := c.cc.Invoke(ctx, "/realworld.v1.RealWorld/UpdateUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -231,10 +231,10 @@ func (c *realWorldClient) GetTags(ctx context.Context, in *emptypb.Empty, opts .
 type RealWorldServer interface {
 	// 参考kratos文档 https://go-kratos.dev/docs/component/api
 	// realworld中Login接口定义 https://realworld-docs.netlify.app/docs/specs/backend-specs/endpoints#Login
-	Login(context.Context, *LoginRequest) (*UserReply, error)
-	Register(context.Context, *RegisterRequest) (*UserReply, error)
+	Login(context.Context, *LoginRequest) (*UserLoginReply, error)
+	Register(context.Context, *RegisterRequest) (*UserLoginReply, error)
 	GetCurrentUser(context.Context, *emptypb.Empty) (*UserReply, error)
-	UpdateUser(context.Context, *UpdateUserRequest) (*UserReply, error)
+	UpdateUser(context.Context, *User) (*UserLoginReply, error)
 	GetProfile(context.Context, *GetProfileRequest) (*ProfileReply, error)
 	FollowUser(context.Context, *FollowUserRequest) (*ProfileReply, error)
 	UnfollowUser(context.Context, *UnfollowUserRequest) (*emptypb.Empty, error)
@@ -257,16 +257,16 @@ type RealWorldServer interface {
 type UnimplementedRealWorldServer struct {
 }
 
-func (UnimplementedRealWorldServer) Login(context.Context, *LoginRequest) (*UserReply, error) {
+func (UnimplementedRealWorldServer) Login(context.Context, *LoginRequest) (*UserLoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedRealWorldServer) Register(context.Context, *RegisterRequest) (*UserReply, error) {
+func (UnimplementedRealWorldServer) Register(context.Context, *RegisterRequest) (*UserLoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
 func (UnimplementedRealWorldServer) GetCurrentUser(context.Context, *emptypb.Empty) (*UserReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCurrentUser not implemented")
 }
-func (UnimplementedRealWorldServer) UpdateUser(context.Context, *UpdateUserRequest) (*UserReply, error) {
+func (UnimplementedRealWorldServer) UpdateUser(context.Context, *User) (*UserLoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
 }
 func (UnimplementedRealWorldServer) GetProfile(context.Context, *GetProfileRequest) (*ProfileReply, error) {
@@ -382,7 +382,7 @@ func _RealWorld_GetCurrentUser_Handler(srv interface{}, ctx context.Context, dec
 }
 
 func _RealWorld_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateUserRequest)
+	in := new(User)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -394,7 +394,7 @@ func _RealWorld_UpdateUser_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/realworld.v1.RealWorld/UpdateUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RealWorldServer).UpdateUser(ctx, req.(*UpdateUserRequest))
+		return srv.(RealWorldServer).UpdateUser(ctx, req.(*User))
 	}
 	return interceptor(ctx, in, info, handler)
 }

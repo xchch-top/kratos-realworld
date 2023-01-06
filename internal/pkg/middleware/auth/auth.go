@@ -2,7 +2,7 @@ package auth
 
 import (
 	"context"
-	"errors"
+	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/middleware/selector"
@@ -40,7 +40,7 @@ func JwtAuth(secret string) middleware.Middleware {
 				token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 					_, ok := token.Method.(*jwt.SigningMethodHMAC)
 					if !ok {
-						return nil, errors.New("Unexpected signing method: " + token.Header["alg"].(string))
+						return nil, errors.Unauthorized("token", "Unexpected signing method: "+token.Header["alg"].(string))
 					}
 					return []byte(secret), nil
 				})
@@ -49,18 +49,17 @@ func JwtAuth(secret string) middleware.Middleware {
 				}
 
 				claims, ok := token.Claims.(jwt.MapClaims)
-				if ok && token.Valid {
-					currUser := User{
-						Id:       uint64(claims["id"].(float64)),
-						Email:    claims["email"].(string),
-						Username: claims["username"].(string),
-					}
-					ctx = context.WithValue(context.Background(), CurrUser, currUser)
-					log.Info("username: ", currUser.Email)
-				} else {
-					return nil, err
+				if !ok || claims.Valid() != nil || time.Now().Unix()-int64(claims["timestamp"].(float64)) > 30*60 {
+					return nil, errors.Unauthorized("token", "token解析失败或token已过期")
 				}
 
+				currUser := User{
+					Id:       uint64(claims["id"].(float64)),
+					Email:    claims["email"].(string),
+					Username: claims["username"].(string),
+				}
+				ctx = context.WithValue(context.Background(), CurrUser, currUser)
+				log.Info("username: ", currUser.Email)
 			}
 
 			return handler(ctx, req)
@@ -70,11 +69,10 @@ func JwtAuth(secret string) middleware.Middleware {
 
 func GenerateToken(secret string, authUser *User) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		CurrUser:    authUser,
 		"id":        authUser.Id,
 		"email":     authUser.Email,
 		"username":  authUser.Username,
-		"timestamp": time.Now().UTC(),
+		"timestamp": time.Now().Unix(),
 	})
 	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {

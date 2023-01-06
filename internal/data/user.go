@@ -74,7 +74,17 @@ func (r *userRepo) GetUserById(ctx context.Context, id uint64) (*biz.User, error
 		Email:    user.Email,
 		Username: user.Username,
 	}, nil
+}
 
+func (r *userRepo) UpdateUser(ctx context.Context, bizUser *biz.User) (*biz.User, error) {
+	user := User{Username: bizUser.Username, Email: bizUser.Email, Bio: bizUser.Bio, Image: bizUser.Image}
+	user.Id = bizUser.Id
+	result := r.data.db.Select("username", "email", "bio", "image").Updates(&user)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return bizUser, nil
 }
 
 type profileRepo struct {

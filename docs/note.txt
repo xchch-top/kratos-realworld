@@ -13,11 +13,24 @@ docker构建的命令 docker build -t kratos-realworld .
 openapi的使用 https://go-kratos.dev/docs/guide/openapi
 在 https://editor.swagger.io/ 页面左侧粘贴openapi的定义
 
+下载前端依赖的module
+npm config set strict-ssl false
+npm config set registry https://registry.npm.taobao.org
+npm install
+
 注册http接口
 代码入口是main方法中调用wireApp方法, 最终调用到realworld_http.pb.go文件中RegisterRealWorldHTTPServer()方法, 方法中注册http接口
 注册grpc接口
 代码入口是main方法中调用wireApp方法, 最终调用到realworld_grpc.pb.go文件中RegisterRealWorldServer()方法
 
-代码调用流程
-
+代码调用流程 https://go-kratos.dev/docs/intro/layout
 service层 --> biz层 --> data层
+
+internal
+    包含服务所有不对外暴露的代码
+service层
+    实现了api定义的服务层; 调用biz层, 请求的入参和出参对象都定义在biz层; 处理DTO到biz领域实体的转换(DTO --> DO)
+biz层
+    定义biz层方法, 定义repo层的接口, 实现主要的业务逻辑
+data层
+    包含cache, db等封装, 实现biz的repo接口, 方法的入参和出参都定义在biz层

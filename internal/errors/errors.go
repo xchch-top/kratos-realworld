@@ -16,7 +16,7 @@ func NewHttpError(code int, field string, detail any) *HttpError {
 		Code:   code,
 		Errors: make(map[string]any),
 	}
-	httpError.Errors[field] = detail
+	httpError.Errors[field] = []any{detail}
 
 	return httpError
 }

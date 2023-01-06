@@ -299,7 +299,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/realworld.v1.UserReply'
-    /api/users:
         put:
             tags:
                 - RealWorld
@@ -308,7 +307,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/realworld.v1.UpdateUserRequest'
+                            $ref: '#/components/schemas/realworld.v1.User'
                 required: true
             responses:
                 "200":
@@ -316,7 +315,8 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/realworld.v1.UserReply'
+                                $ref: '#/components/schemas/realworld.v1.UserLoginReply'
+    /api/users:
         post:
             tags:
                 - RealWorld
@@ -333,7 +333,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/realworld.v1.UserReply'
+                                $ref: '#/components/schemas/realworld.v1.UserLoginReply'
     /api/users/login:
         post:
             tags:
@@ -352,7 +352,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/realworld.v1.UserReply'
+                                $ref: '#/components/schemas/realworld.v1.UserLoginReply'
 components:
     schemas:
         realworld.v1.AddCommentRequest:
@@ -551,17 +551,25 @@ components:
                     type: array
                     items:
                         type: string
-        realworld.v1.UpdateUserRequest:
-            type: object
-            properties:
-                user:
-                    $ref: '#/components/schemas/realworld.v1.User'
         realworld.v1.User:
             type: object
             properties:
-                Id:
-                    type: integer
-                    format: uint64
+                email:
+                    type: string
+                username:
+                    type: string
+                bio:
+                    type: string
+                image:
+                    type: string
+        realworld.v1.UserLoginReply:
+            type: object
+            properties:
+                user:
+                    $ref: '#/components/schemas/realworld.v1.UserLoginReply_User'
+        realworld.v1.UserLoginReply_User:
+            type: object
+            properties:
                 email:
                     type: string
                 token:

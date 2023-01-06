@@ -2,21 +2,21 @@ package service
 
 import (
 	"context"
+	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/golang/protobuf/ptypes/empty"
 	realworld "kratos-realworld/api/realworld/v1"
-	"kratos-realworld/internal/errors"
+	"kratos-realworld/internal/biz"
 	"kratos-realworld/internal/pkg/middleware/auth"
-	"reflect"
 )
 
-func (s *RealworldService) Register(ctx context.Context, req *realworld.RegisterRequest) (*realworld.UserReply, error) {
+func (s *RealworldService) Register(ctx context.Context, req *realworld.RegisterRequest) (*realworld.UserLoginReply, error) {
 	u, err := s.uc.Register(ctx, req.User.Username, req.User.Email, req.User.Password)
 	if err != nil {
 		return nil, err
 	}
 
-	return &realworld.UserReply{
-		User: &realworld.User{
+	return &realworld.UserLoginReply{
+		User: &realworld.UserLoginReply_User{
 			Email:    u.Email,
 			Username: u.Username,
 			Token:    u.Token,
@@ -24,10 +24,9 @@ func (s *RealworldService) Register(ctx context.Context, req *realworld.Register
 	}, nil
 }
 
-func (s *RealworldService) Login(ctx context.Context, req *realworld.LoginRequest) (*realworld.UserReply, error) {
+func (s *RealworldService) Login(ctx context.Context, req *realworld.LoginRequest) (*realworld.UserLoginReply, error) {
 	if req.User.Email == "locked" {
-		// 错误时返回用例: {"errors":{"email":"用户被锁定"}}
-		return nil, errors.NewHttpError(422, "email", "用户被锁定")
+		return nil, errors.InternalServer("email locked", "用户被锁定")
 	}
 
 	ul, err := s.uc.Login(ctx, req.User.Email, req.User.Password)
@@ -35,8 +34,8 @@ func (s *RealworldService) Login(ctx context.Context, req *realworld.LoginReques
 		return nil, err
 	}
 
-	return &realworld.UserReply{
-		User: &realworld.User{
+	return &realworld.UserLoginReply{
+		User: &realworld.UserLoginReply_User{
 			Email:    ul.Email,
 			Username: ul.Username,
 			Bio:      ul.Bio,
@@ -46,9 +45,21 @@ func (s *RealworldService) Login(ctx context.Context, req *realworld.LoginReques
 	}, nil
 }
 
+func GetAuthUser(ctx context.Context) (*auth.User, error) {
+	cVal := ctx.Value(auth.CurrUser)
+	if cVal == nil {
+		return nil, errors.InternalServer("user not found", "找不到用户")
+	}
+
+	cUser := cVal.(auth.User)
+	return &cUser, nil
+}
+
 func (s *RealworldService) GetCurrentUser(ctx context.Context, empty *empty.Empty) (*realworld.UserReply, error) {
-	reflect.ValueOf(ctx.Value(auth.CurrUser))
-	cUser := ctx.Value(auth.CurrUser).(auth.User)
+	cUser, err := GetAuthUser(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	user, err := s.uc.GetCurrent(ctx, cUser.Id)
 	if err != nil {
@@ -57,13 +68,31 @@ func (s *RealworldService) GetCurrentUser(ctx context.Context, empty *empty.Empt
 
 	return &realworld.UserReply{
 		User: &realworld.User{
-			Id:       user.Id,
 			Email:    user.Email,
 			Username: user.Username,
 		},
 	}, nil
 }
 
-func (s *RealworldService) UpdateUser(ctx context.Context, req *realworld.UpdateUserRequest) (*realworld.UserReply, error) {
-	return nil, nil
+func (s *RealworldService) UpdateUser(ctx context.Context, req *realworld.User) (*realworld.UserLoginReply, error) {
+	cUser, err := GetAuthUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	bizUser := &biz.User{Id: cUser.Id, Username: req.Username, Email: req.Email, Image: req.Image, Bio: req.Bio}
+
+	lUser, err := s.uc.UpdateUser(ctx, bizUser)
+	if err != nil {
+		return nil, err
+	}
+	return &realworld.UserLoginReply{
+		User: &realworld.UserLoginReply_User{
+			Username: lUser.Username,
+			Email:    lUser.Email,
+			Token:    lUser.Token,
+			Bio:      lUser.Bio,
+			Image:    lUser.Image,
+		},
+	}, nil
 }

@@ -54,12 +54,12 @@ type RealWorldHTTPServer interface {
 	GetProfile(context.Context, *GetProfileRequest) (*ProfileReply, error)
 	GetTags(context.Context, *emptypb.Empty) (*TagListReply, error)
 	ListArticles(context.Context, *ListArticlesRequest) (*MultipleArticlesReply, error)
-	Login(context.Context, *LoginRequest) (*UserReply, error)
-	Register(context.Context, *RegisterRequest) (*UserReply, error)
+	Login(context.Context, *LoginRequest) (*UserLoginReply, error)
+	Register(context.Context, *RegisterRequest) (*UserLoginReply, error)
 	UnfavoriteArticle(context.Context, *UnfavoriteArticleRequest) (*emptypb.Empty, error)
 	UnfollowUser(context.Context, *UnfollowUserRequest) (*emptypb.Empty, error)
 	UpdateArticle(context.Context, *UpdateArticleRequest) (*SingleArticleReply, error)
-	UpdateUser(context.Context, *UpdateUserRequest) (*UserReply, error)
+	UpdateUser(context.Context, *User) (*UserLoginReply, error)
 }
 
 func RegisterRealWorldHTTPServer(s *http.Server, srv RealWorldHTTPServer) {
@@ -67,7 +67,7 @@ func RegisterRealWorldHTTPServer(s *http.Server, srv RealWorldHTTPServer) {
 	r.POST("/api/users/login", _RealWorld_Login0_HTTP_Handler(srv))
 	r.POST("/api/users", _RealWorld_Register0_HTTP_Handler(srv))
 	r.GET("/api/user", _RealWorld_GetCurrentUser0_HTTP_Handler(srv))
-	r.PUT("/api/users", _RealWorld_UpdateUser0_HTTP_Handler(srv))
+	r.PUT("/api/user", _RealWorld_UpdateUser0_HTTP_Handler(srv))
 	r.GET("/api/profiles/{username}", _RealWorld_GetProfile0_HTTP_Handler(srv))
 	r.POST("/api/profiles/{username}/follow", _RealWorld_FollowUser0_HTTP_Handler(srv))
 	r.DELETE("/api/profiles/{username}/follow", _RealWorld_UnfollowUser0_HTTP_Handler(srv))
@@ -99,7 +99,7 @@ func _RealWorld_Login0_HTTP_Handler(srv RealWorldHTTPServer) func(ctx http.Conte
 		if err != nil {
 			return err
 		}
-		reply := out.(*UserReply)
+		reply := out.(*UserLoginReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -118,7 +118,7 @@ func _RealWorld_Register0_HTTP_Handler(srv RealWorldHTTPServer) func(ctx http.Co
 		if err != nil {
 			return err
 		}
-		reply := out.(*UserReply)
+		reply := out.(*UserLoginReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -144,19 +144,19 @@ func _RealWorld_GetCurrentUser0_HTTP_Handler(srv RealWorldHTTPServer) func(ctx h
 
 func _RealWorld_UpdateUser0_HTTP_Handler(srv RealWorldHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in UpdateUserRequest
+		var in User
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationRealWorldUpdateUser)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.UpdateUser(ctx, req.(*UpdateUserRequest))
+			return srv.UpdateUser(ctx, req.(*User))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*UserReply)
+		reply := out.(*UserLoginReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -493,12 +493,12 @@ type RealWorldHTTPClient interface {
 	GetProfile(ctx context.Context, req *GetProfileRequest, opts ...http.CallOption) (rsp *ProfileReply, err error)
 	GetTags(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *TagListReply, err error)
 	ListArticles(ctx context.Context, req *ListArticlesRequest, opts ...http.CallOption) (rsp *MultipleArticlesReply, err error)
-	Login(ctx context.Context, req *LoginRequest, opts ...http.CallOption) (rsp *UserReply, err error)
-	Register(ctx context.Context, req *RegisterRequest, opts ...http.CallOption) (rsp *UserReply, err error)
+	Login(ctx context.Context, req *LoginRequest, opts ...http.CallOption) (rsp *UserLoginReply, err error)
+	Register(ctx context.Context, req *RegisterRequest, opts ...http.CallOption) (rsp *UserLoginReply, err error)
 	UnfavoriteArticle(ctx context.Context, req *UnfavoriteArticleRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	UnfollowUser(ctx context.Context, req *UnfollowUserRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	UpdateArticle(ctx context.Context, req *UpdateArticleRequest, opts ...http.CallOption) (rsp *SingleArticleReply, err error)
-	UpdateUser(ctx context.Context, req *UpdateUserRequest, opts ...http.CallOption) (rsp *UserReply, err error)
+	UpdateUser(ctx context.Context, req *User, opts ...http.CallOption) (rsp *UserLoginReply, err error)
 }
 
 type RealWorldHTTPClientImpl struct {
@@ -678,8 +678,8 @@ func (c *RealWorldHTTPClientImpl) ListArticles(ctx context.Context, in *ListArti
 	return &out, err
 }
 
-func (c *RealWorldHTTPClientImpl) Login(ctx context.Context, in *LoginRequest, opts ...http.CallOption) (*UserReply, error) {
-	var out UserReply
+func (c *RealWorldHTTPClientImpl) Login(ctx context.Context, in *LoginRequest, opts ...http.CallOption) (*UserLoginReply, error) {
+	var out UserLoginReply
 	pattern := "/api/users/login"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationRealWorldLogin))
@@ -691,8 +691,8 @@ func (c *RealWorldHTTPClientImpl) Login(ctx context.Context, in *LoginRequest, o
 	return &out, err
 }
 
-func (c *RealWorldHTTPClientImpl) Register(ctx context.Context, in *RegisterRequest, opts ...http.CallOption) (*UserReply, error) {
-	var out UserReply
+func (c *RealWorldHTTPClientImpl) Register(ctx context.Context, in *RegisterRequest, opts ...http.CallOption) (*UserLoginReply, error) {
+	var out UserLoginReply
 	pattern := "/api/users"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationRealWorldRegister))
@@ -743,9 +743,9 @@ func (c *RealWorldHTTPClientImpl) UpdateArticle(ctx context.Context, in *UpdateA
 	return &out, err
 }
 
-func (c *RealWorldHTTPClientImpl) UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...http.CallOption) (*UserReply, error) {
-	var out UserReply
-	pattern := "/api/users"
+func (c *RealWorldHTTPClientImpl) UpdateUser(ctx context.Context, in *User, opts ...http.CallOption) (*UserLoginReply, error) {
+	var out UserLoginReply
+	pattern := "/api/user"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationRealWorldUpdateUser))
 	opts = append(opts, http.PathTemplate(pattern))

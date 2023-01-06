@@ -22,7 +22,11 @@ func (s *RealworldService) GetArticle(ctx context.Context, req *realworld.GetArt
 	return nil, nil
 }
 
-func (s *RealworldService) CreateArticle(ctx context.Context, req *realworld.CreateArticleRequest) (*realworld.SingleArticleReply, error) {
+func (s *RealworldService) CreateArticle(ctx context.Context, req *realworld.CreateArticleRequest) (
+	*realworld.SingleArticleReply, error) {
+
+	// s.sc.CreateArticle(ctx, biz.Create)
+
 	return nil, nil
 }
 

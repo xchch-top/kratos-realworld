@@ -14,6 +14,7 @@ type RealworldService struct {
 	realworld.UnimplementedRealWorldServer
 
 	uc  *biz.UserUseCase
+	sc  *biz.SocialUseCase
 	log *log.Helper
 }
 

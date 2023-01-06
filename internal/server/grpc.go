@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/go-kratos/kratos/v2/middleware/logging"
 	realworld "kratos-realworld/api/realworld/v1"
 	"kratos-realworld/internal/conf"
 	"kratos-realworld/internal/service"
@@ -15,6 +16,7 @@ func NewGRPCServer(c *conf.Server, greeter *service.RealworldService, logger log
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
+			logging.Server(logger),
 		),
 	}
 	if c.Grpc.Network != "" {
