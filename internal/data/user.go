@@ -2,9 +2,7 @@ package data
 
 import (
 	"context"
-	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
-	"gorm.io/gorm"
 	"kratos-realworld/internal/biz"
 )
 
@@ -14,7 +12,7 @@ type userRepo struct {
 }
 
 type User struct {
-	gorm.Model
+	Model
 	Email        string `gorm:"size:500"`
 	Username     string `gorm:"size:500"`
 	Bio          string `gorm:"size:1000"`
@@ -29,7 +27,7 @@ func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 	}
 }
 
-func (r *userRepo) CreateUser(ctx context.Context, u *biz.User) error {
+func (r *userRepo) CreateUser(ctx context.Context, u *biz.User) (*biz.User, error) {
 	user := User{
 		Email:        u.Email,
 		Username:     u.Username,
@@ -38,25 +36,45 @@ func (r *userRepo) CreateUser(ctx context.Context, u *biz.User) error {
 		PasswordHash: u.PasswordHash,
 	}
 	rv := r.data.db.Create(&user)
-	return rv.Error
+	if rv.Error != nil {
+		return nil, rv.Error
+	}
+	return &biz.User{
+		Id:       user.Id,
+		Email:    user.Email,
+		Username: user.Username,
+	}, nil
 }
 
 func (r *userRepo) GetUserByEmail(ctx context.Context, email string) (*biz.User, error) {
 	u := new(User)
 	result := r.data.db.Where("email = ?", email).First(u)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return nil, errors.NotFound("user", "not found by email")
-	}
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return &biz.User{
+		Id:           u.Id,
 		Email:        u.Email,
 		Username:     u.Username,
 		Bio:          u.Bio,
 		Image:        u.Image,
 		PasswordHash: u.PasswordHash,
 	}, nil
+}
+
+func (r *userRepo) GetUserById(ctx context.Context, id uint64) (*biz.User, error) {
+	var user User
+	result := r.data.db.Where("id = ?", id).First(&user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &biz.User{
+		Id:       user.Id,
+		Email:    user.Email,
+		Username: user.Username,
+	}, nil
+
 }
 
 type profileRepo struct {

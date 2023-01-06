@@ -14,7 +14,7 @@ import (
 )
 
 // This is a compile-time assertion to ensure that this generated file
-// is compatible with the kratos pkg it is being compiled against.
+// is compatible with the kratos package it is being compiled against.
 var _ = new(context.Context)
 var _ = binding.EncodeURL
 
@@ -66,7 +66,7 @@ func RegisterRealWorldHTTPServer(s *http.Server, srv RealWorldHTTPServer) {
 	r := s.Route("/")
 	r.POST("/api/users/login", _RealWorld_Login0_HTTP_Handler(srv))
 	r.POST("/api/users", _RealWorld_Register0_HTTP_Handler(srv))
-	r.GET("/api/users", _RealWorld_GetCurrentUser0_HTTP_Handler(srv))
+	r.GET("/api/user", _RealWorld_GetCurrentUser0_HTTP_Handler(srv))
 	r.PUT("/api/users", _RealWorld_UpdateUser0_HTTP_Handler(srv))
 	r.GET("/api/profiles/{username}", _RealWorld_GetProfile0_HTTP_Handler(srv))
 	r.POST("/api/profiles/{username}/follow", _RealWorld_FollowUser0_HTTP_Handler(srv))
@@ -628,7 +628,7 @@ func (c *RealWorldHTTPClientImpl) GetComments(ctx context.Context, in *GetCommen
 
 func (c *RealWorldHTTPClientImpl) GetCurrentUser(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*UserReply, error) {
 	var out UserReply
-	pattern := "/api/users"
+	pattern := "/api/user"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationRealWorldGetCurrentUser))
 	opts = append(opts, http.PathTemplate(pattern))

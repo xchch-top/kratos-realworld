@@ -1,9 +1,7 @@
 package data
 
-import "gorm.io/gorm"
-
 type Article struct {
-	gorm.Model
+	Model
 	Slug           string `gorm:"size:200"`
 	Title          string `gorm:"size:200"`
 	Description    string `gorm:"size:200"`
@@ -15,7 +13,7 @@ type Article struct {
 }
 
 type Tag struct {
-	gorm.Model
+	Model
 	Name     string    `gorm:"size:200;uniqueIndex"`
 	Articles []Article `gorm:"many2many:article_tags;"`
 }

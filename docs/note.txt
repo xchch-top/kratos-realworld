@@ -18,4 +18,6 @@ openapi的使用 https://go-kratos.dev/docs/guide/openapi
 注册grpc接口
 代码入口是main方法中调用wireApp方法, 最终调用到realworld_grpc.pb.go文件中RegisterRealWorldServer()方法
 
-安装cnpm https://cloud.tencent.com/developer/article/2151848
+代码调用流程
+
+service层 --> biz层 --> data层

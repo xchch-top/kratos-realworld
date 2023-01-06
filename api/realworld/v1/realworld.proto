@@ -29,7 +29,7 @@ service RealWorld {
 
     rpc GetCurrentUser (google.protobuf.Empty) returns (UserReply) {
         option (google.api.http) = {
-            get: "/api/users",
+            get: "/api/user",
         };
     }
 
@@ -138,11 +138,12 @@ service RealWorld {
 }
 
 message User {
-    string email = 1;
-    string token = 2;
-    string username = 3;
-    string bio = 4;
-    string image = 5;
+    uint64 Id = 1;
+    string email = 2;
+    string token = 3;
+    string username = 4;
+    string bio = 5;
+    string image = 6;
 }
 
 message UserReply {

@@ -5,6 +5,8 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	realworld "kratos-realworld/api/realworld/v1"
 	"kratos-realworld/internal/errors"
+	"kratos-realworld/internal/pkg/middleware/auth"
+	"reflect"
 )
 
 func (s *RealworldService) Register(ctx context.Context, req *realworld.RegisterRequest) (*realworld.UserReply, error) {
@@ -45,7 +47,21 @@ func (s *RealworldService) Login(ctx context.Context, req *realworld.LoginReques
 }
 
 func (s *RealworldService) GetCurrentUser(ctx context.Context, empty *empty.Empty) (*realworld.UserReply, error) {
-	return nil, nil
+	reflect.ValueOf(ctx.Value(auth.CurrUser))
+	cUser := ctx.Value(auth.CurrUser).(auth.User)
+
+	user, err := s.uc.GetCurrent(ctx, cUser.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &realworld.UserReply{
+		User: &realworld.User{
+			Id:       user.Id,
+			Email:    user.Email,
+			Username: user.Username,
+		},
+	}, nil
 }
 
 func (s *RealworldService) UpdateUser(ctx context.Context, req *realworld.UpdateUserRequest) (*realworld.UserReply, error) {

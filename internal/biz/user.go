@@ -5,11 +5,13 @@ import (
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 	"kratos-realworld/internal/conf"
 	"kratos-realworld/internal/pkg/middleware/auth"
 )
 
 type User struct {
+	Id           uint64
 	Email        string
 	Username     string
 	Bio          string
@@ -26,8 +28,9 @@ type UserLogin struct {
 }
 
 type UserRepo interface {
-	CreateUser(ctx context.Context, u *User) error
+	CreateUser(ctx context.Context, u *User) (*User, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
+	GetUserById(ctx context.Context, id uint64) (*User, error)
 }
 
 func hashPassword(pwd string) string {
@@ -73,15 +76,12 @@ func (uc *UserUseCase) Register(ctx context.Context, username string, email stri
 
 	// 判断邮箱是否已经注册过
 	uByEmail, err := uc.ur.GetUserByEmail(ctx, email)
-	if err != nil {
-		return nil, err
-	}
 	if uByEmail != nil {
 		return nil, errors.InternalServer("email has bean registered", "邮箱已经被注册过")
 	}
 
 	// 注册用户
-	err = uc.ur.CreateUser(ctx, u)
+	bizUser, err := uc.ur.CreateUser(ctx, u)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (uc *UserUseCase) Register(ctx context.Context, username string, email stri
 	return &UserLogin{
 		Email:    email,
 		Username: username,
-		Token:    auth.GenerateToken(uc.jc.Secret, username),
+		Token:    auth.GenerateToken(uc.jc.Secret, auth.NewAuthUser(bizUser.Id, bizUser.Email, bizUser.Username)),
 	}, nil
 }
 
@@ -108,6 +108,19 @@ func (uc *UserUseCase) Login(ctx context.Context, email string, password string)
 		Username: u.Username,
 		Bio:      u.Bio,
 		Image:    u.Image,
-		Token:    auth.GenerateToken(uc.jc.Secret, u.Username),
+		Token:    auth.GenerateToken(uc.jc.Secret, auth.NewAuthUser(u.Id, u.Email, u.Username)),
 	}, nil
+}
+
+func (uc *UserUseCase) GetCurrent(ctx context.Context, id uint64) (*User, error) {
+	u, err := uc.ur.GetUserById(ctx, id)
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		errors.NotFound("user not found", "用户不存在")
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return u, err
 }

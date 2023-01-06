@@ -12,6 +12,10 @@ import (
 	"time"
 )
 
+var (
+	CurrUser = "currUser"
+)
+
 func NewSkipRouterMatcher() selector.MatchFunc {
 	skipRouters := make(map[string]struct{})
 	// /包名.服务名/方法名
@@ -46,10 +50,17 @@ func JwtAuth(secret string) middleware.Middleware {
 
 				claims, ok := token.Claims.(jwt.MapClaims)
 				if ok && token.Valid {
-					log.Info("username: ", claims["username"])
+					currUser := User{
+						Id:       uint64(claims["id"].(float64)),
+						Email:    claims["email"].(string),
+						Username: claims["username"].(string),
+					}
+					ctx = context.WithValue(context.Background(), CurrUser, currUser)
+					log.Info("username: ", currUser.Email)
 				} else {
 					return nil, err
 				}
+
 			}
 
 			return handler(ctx, req)
@@ -57,9 +68,12 @@ func JwtAuth(secret string) middleware.Middleware {
 	}
 }
 
-func GenerateToken(secret string, username string) string {
+func GenerateToken(secret string, authUser *User) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username":  username,
+		CurrUser:    authUser,
+		"id":        authUser.Id,
+		"email":     authUser.Email,
+		"username":  authUser.Username,
 		"timestamp": time.Now().UTC(),
 	})
 	tokenString, err := token.SignedString([]byte(secret))
@@ -68,4 +82,14 @@ func GenerateToken(secret string, username string) string {
 	}
 
 	return tokenString
+}
+
+type User struct {
+	Id       uint64
+	Email    string
+	Username string
+}
+
+func NewAuthUser(id uint64, email string, username string) *User {
+	return &User{Id: id, Email: email, Username: username}
 }
