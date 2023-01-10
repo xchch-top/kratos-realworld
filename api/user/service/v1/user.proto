@@ -1,0 +1,129 @@
+syntax = "proto3";
+
+package user.service.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "api/user/service/v1;v1";
+
+service User {
+    rpc Login (LoginRequest) returns (UserLoginReply) {
+        option (google.api.http) = {
+            post: "/api/users/login",
+            body: "*",
+        };
+    }
+
+    rpc Register (RegisterRequest) returns (UserLoginReply) {
+        option (google.api.http) = {
+            post: "/api/users",
+            body: "*",
+        };
+    }
+
+    rpc GetCurrentUser (google.protobuf.Empty) returns (GetUserReply) {
+        option (google.api.http) = {
+            get: "/api/user",
+        };
+    }
+
+    rpc UpdateUser (UpdateUserReq) returns (UserLoginReply) {
+        option (google.api.http) = {
+            put: "/api/user",
+            body: "*",
+        };
+    }
+
+    rpc GetProfile (GetProfileRequest) returns (ProfileReply) {
+        option (google.api.http) = {
+            get: "/api/profiles/{username}",
+        };
+    }
+
+    rpc FollowUser (FollowUserRequest) returns (ProfileReply) {
+        option (google.api.http) = {
+            post: "/api/profiles/{username}/follow",
+            body: "*",
+        };
+    }
+
+    rpc UnfollowUser (UnfollowUserRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            delete: "/api/profiles/{username}/follow",
+        };
+    }
+}
+
+message UserLoginReply {
+    User user = 1;
+
+    message User {
+        string email = 1;
+        string token = 2;
+        string username = 3;
+        string bio = 4;
+        string image = 5;
+    }
+}
+
+message UpdateUserReq {
+    string email = 1;
+    string username = 2;
+    string bio = 3;
+    string image = 4;
+    string password = 5;
+}
+
+message GetUserReply {
+    User user = 1;
+
+    message User {
+        string email = 1;
+        string username = 2;
+        string bio = 3;
+        string image = 4;
+    }
+}
+
+message ProfileReply {
+    Profile profile = 1;
+
+    message Profile {
+        string username = 1;
+        string bio = 2;
+        string image = 3;
+        bool following = 4;
+    }
+}
+
+message LoginRequest {
+    User user = 1;
+
+    message User {
+        string email = 1;
+        string password = 2;
+    }
+}
+
+message RegisterRequest {
+    User user = 1;
+
+    message User {
+        string username = 1;
+        string email = 2;
+        string password = 3;
+    }
+}
+
+message GetProfileRequest {
+    string username = 1;
+}
+
+message FollowUserRequest {
+    string username = 1;
+}
+
+message UnfollowUserRequest {
+    string username = 1;
+}

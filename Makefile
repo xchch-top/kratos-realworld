@@ -47,7 +47,8 @@ api:
 .PHONY: wire
 # wire
 wire:
-	cd cmd/kratos-realworld/ && wire
+	cd cmd/user/ && wire
+	cd cmd/article/ && wire
 
 .PHONY: build
 # build
