@@ -70,31 +70,32 @@ func (r *userRepo) GetUserById(ctx context.Context, id uint64) (*biz.User, error
 	}
 
 	return &biz.User{
-		Id:       user.Id,
-		Email:    user.Email,
-		Username: user.Username,
+		Id:           user.Id,
+		Username:     user.Username,
+		Email:        user.Email,
+		Bio:          user.Bio,
+		PasswordHash: user.PasswordHash,
 	}, nil
 }
 
-func (r *userRepo) UpdateUser(ctx context.Context, bizUser *biz.User) (*biz.User, error) {
+func (r *userRepo) UpdateUser(ctx context.Context, bizUser *biz.User) error {
 	user := User{Username: bizUser.Username, Email: bizUser.Email, Bio: bizUser.Bio, Image: bizUser.Image}
 	user.Id = bizUser.Id
 	result := r.data.db.Select("username", "email", "bio", "image").Updates(&user)
 
+	return result.Error
+}
+
+func (r *userRepo) GetUserByName(ctx context.Context, name string) (*biz.User, error) {
+	var user User
+	result := r.data.db.Where("name = ?", name).First(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return bizUser, nil
-}
 
-type profileRepo struct {
-	data *Data
-	log  *log.Helper
-}
-
-func NewProfileRepo(data *Data, logger log.Logger) biz.ProfileRepo {
-	return &profileRepo{
-		data: data,
-		log:  log.NewHelper(logger),
-	}
+	return &biz.User{
+		Id:       user.Id,
+		Email:    user.Email,
+		Username: user.Username,
+	}, nil
 }

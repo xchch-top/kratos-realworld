@@ -13,7 +13,8 @@ func main() {
 
 	router.Any("/api/*params", func(ctx *gin.Context) {
 		host := "localhost:8001"
-		if strings.Contains(ctx.Request.RequestURI, "/api/article") {
+		if strings.Contains(ctx.Request.RequestURI, "/api/article") ||
+			strings.Contains(ctx.Request.RequestURI, "/api/tags") {
 			host = "localhost:8002"
 		}
 

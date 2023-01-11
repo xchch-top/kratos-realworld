@@ -31,7 +31,8 @@ type UserRepo interface {
 	CreateUser(ctx context.Context, u *User) (*User, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserById(ctx context.Context, id uint64) (*User, error)
-	UpdateUser(ctx context.Context, user *User) (*User, error)
+	UpdateUser(ctx context.Context, user *User) error
+	GetUserByName(ctx context.Context, username string) (*User, error)
 }
 
 func hashPassword(pwd string) string {
@@ -48,23 +49,18 @@ func verifyPassword(hashedPwd string, input string) bool {
 	return err == nil
 }
 
-type ProfileRepo interface {
-}
-
 type UserUseCase struct {
 	ur UserRepo
-	pr ProfileRepo
 
 	log *log.Helper
 	jc  *conf.Jwt
 }
 
-func NewUserUseCase(ur UserRepo, pr ProfileRepo, logger log.Logger, jc *conf.Jwt) *UserUseCase {
+func NewUserUseCase(ur UserRepo, logger log.Logger, jc *conf.Jwt) *UserUseCase {
 	return &UserUseCase{
 		ur:  ur,
-		pr:  pr,
-		log: log.NewHelper(logger),
 		jc:  jc,
+		log: log.NewHelper(logger),
 	}
 }
 
@@ -76,7 +72,7 @@ func (uc *UserUseCase) Register(ctx context.Context, username string, email stri
 	}
 
 	// 判断邮箱是否已经注册过
-	uByEmail, err := uc.ur.GetUserByEmail(ctx, email)
+	uByEmail, err := uc.GetUserByEmail(ctx, email)
 	if uByEmail != nil {
 		return nil, errors.InternalServer("email has bean registered", "邮箱已经被注册过")
 	}
@@ -95,7 +91,7 @@ func (uc *UserUseCase) Register(ctx context.Context, username string, email stri
 }
 
 func (uc *UserUseCase) Login(ctx context.Context, email string, password string) (*UserLogin, error) {
-	u, err := uc.ur.GetUserByEmail(ctx, email)
+	u, err := uc.GetUserByEmail(ctx, email)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.InternalServer("user or password error", "用户不存在或密码错误")
 	}
@@ -116,11 +112,10 @@ func (uc *UserUseCase) Login(ctx context.Context, email string, password string)
 	}, nil
 }
 
-func (uc *UserUseCase) GetCurrent(ctx context.Context, id uint64) (*User, error) {
+func (uc *UserUseCase) GetUserById(ctx context.Context, id uint64) (*User, error) {
 	u, err := uc.ur.GetUserById(ctx, id)
-
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		errors.NotFound("user not found", "用户不存在")
+		return nil, errors.NotFound("user not found", "用户不存在")
 	}
 	if err != nil {
 		return nil, err
@@ -131,9 +126,8 @@ func (uc *UserUseCase) GetCurrent(ctx context.Context, id uint64) (*User, error)
 
 func (uc *UserUseCase) UpdateUser(ctx context.Context, newUser *User) (*UserLogin, error) {
 	oUser, err := uc.ur.GetUserById(ctx, newUser.Id)
-
 	if errors.Is(err, gorm.ErrRecordNotFound) || oUser == nil {
-		errors.NotFound("user not found", "用户不存在")
+		return nil, errors.NotFound("user not found", "用户不存在")
 	}
 	if err != nil {
 		return nil, err
@@ -142,16 +136,42 @@ func (uc *UserUseCase) UpdateUser(ctx context.Context, newUser *User) (*UserLogi
 	// todo 邮箱
 	// todo 如果密码字段不为空则改密码
 
-	newUser, err = uc.ur.UpdateUser(ctx, newUser)
+	err = uc.ur.UpdateUser(ctx, newUser)
 	if err != nil {
-		errors.InternalServer("user update failed", "用户信息更新失败")
+		return nil, errors.InternalServer("user update failed", "用户信息更新失败")
 	}
 
+	user, err := uc.GetUserById(ctx, newUser.Id)
+
 	return &UserLogin{
-		Email:    newUser.Email,
-		Username: newUser.Username,
-		Bio:      newUser.Bio,
-		Image:    newUser.Image,
+		Email:    user.Email,
+		Username: user.Username,
+		Bio:      user.Bio,
+		Image:    user.Image,
 		Token:    auth.GenerateToken(uc.jc.Secret, auth.NewAuthUser(newUser.Id, newUser.Email, newUser.Username)),
-	}, nil
+	}, err
+}
+
+func (uc *UserUseCase) GetUserByName(ctx context.Context, username string) (*User, error) {
+	user, err := uc.ur.GetUserByName(ctx, username)
+	if errors.Is(err, gorm.ErrRecordNotFound) || user == nil {
+		return nil, errors.NotFound("user not found", "用户不存在")
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return uc.GetUserById(ctx, user.Id)
+}
+
+func (uc *UserUseCase) GetUserByEmail(ctx context.Context, email string) (*User, error) {
+	user, err := uc.ur.GetUserByEmail(ctx, email)
+	if errors.Is(err, gorm.ErrRecordNotFound) || user == nil {
+		return nil, errors.NotFound("user not found", "用户不存在")
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return uc.GetUserById(ctx, user.Id)
 }
