@@ -45,23 +45,13 @@ func (s *UserService) Login(ctx context.Context, req *service.LoginRequest) (*se
 	}, nil
 }
 
-func GetAuthUser(ctx context.Context) (*auth.User, error) {
-	cVal := ctx.Value(auth.CurrUser)
-	if cVal == nil {
-		return nil, errors.InternalServer("user not found", "找不到用户")
-	}
-
-	cUser := cVal.(auth.User)
-	return &cUser, nil
-}
-
 func (s *UserService) GetCurrentUser(ctx context.Context, empty *empty.Empty) (*service.GetUserReply, error) {
-	cUser, err := GetAuthUser(ctx)
+	authUser, err := auth.GetAuthUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := s.uc.GetCurrent(ctx, cUser.Id)
+	user, err := s.uc.GetCurrent(ctx, authUser.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -75,12 +65,12 @@ func (s *UserService) GetCurrentUser(ctx context.Context, empty *empty.Empty) (*
 }
 
 func (s *UserService) UpdateUser(ctx context.Context, req *service.UpdateUserReq) (*service.UserLoginReply, error) {
-	cUser, err := GetAuthUser(ctx)
+	authUser, err := auth.GetAuthUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	bizUser := &biz.User{Id: cUser.Id, Username: req.Username, Email: req.Email, Image: req.Image, Bio: req.Bio}
+	bizUser := &biz.User{Id: authUser.Id, Username: req.Username, Email: req.Email, Image: req.Image, Bio: req.Bio}
 
 	lUser, err := s.uc.UpdateUser(ctx, bizUser)
 	if err != nil {

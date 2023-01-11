@@ -91,3 +91,12 @@ type User struct {
 func NewAuthUser(id uint64, email string, username string) *User {
 	return &User{Id: id, Email: email, Username: username}
 }
+
+func GetAuthUser(ctx context.Context) (*User, error) {
+	cVal := ctx.Value(CurrUser)
+	if cVal == nil {
+		return nil, errors.InternalServer("user not found", "找不到用户")
+	}
+	cUser := cVal.(User)
+	return &cUser, nil
+}

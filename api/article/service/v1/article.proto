@@ -95,7 +95,7 @@ message Author {
     bool following = 4;
 }
 
-message ArticleReq {
+message ArticleDTO {
     string slug = 1;
     string title = 2;
     string description = 3;
@@ -104,17 +104,17 @@ message ArticleReq {
     google.protobuf.Timestamp createdAt = 6;
     google.protobuf.Timestamp updatedAt = 7;
     bool favorited = 8;
-    uint32 favoritesCount = 9;
+    int32 favoritesCount = 9;
     Author author = 10;
 }
 
 message SingleArticleReply {
-    ArticleReq article = 1;
+    ArticleDTO article = 1;
 }
 
 message MultipleArticlesReply {
-    repeated ArticleReq articles = 1;
-    uint32 articlesCount = 2;
+    repeated ArticleDTO articles = 1;
+    int32 articlesCount = 2;
 }
 
 message Comment {
@@ -141,13 +141,13 @@ message ListArticlesRequest {
     string tag = 1;
     string author = 2;
     string favorited = 3;
-    uint32 limit = 4;
-    uint32 offset = 5;
+    int32 limit = 4;
+    int32 offset = 5;
 }
 
 message FeedArticlesRequest {
-    uint32 limit = 1;
-    uint32 offset = 2;
+    int32 limit = 1;
+    int32 offset = 2;
 }
 
 message GetArticleRequest {
