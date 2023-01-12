@@ -5,18 +5,22 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/uuid"
 	"kratos-realworld/app/article/internal/biz"
+	pkgData "kratos-realworld/pkg/data"
 )
 
 type Article struct {
-	Model
-	Slug        string `gorm:"size:200"`
-	Title       string `gorm:"size:200"`
-	Description string `gorm:"size:200"`
+	pkgData.Model
+	Slug        string
+	Title       string
+	Description string
 	Body        string
-	Tags        []Tag `gorm:"many2many:article_tags;"`
 	AuthorID    uint64
 	// Author         User
 	FavoritesCount uint32
+}
+
+func (a *Article) TableName() string {
+	return "article"
 }
 
 type articleRepo struct {
@@ -38,6 +42,7 @@ func (r *articleRepo) CreateArticle(ctx context.Context, ba *biz.Article) (uint6
 		Description: ba.Description,
 		Body:        ba.Body,
 		AuthorID:    ba.AuthorID,
+		Model:       *pkgData.NewCreateModel(),
 	}
 	result := r.data.db.Create(&article)
 	return article.Id, result.Error
@@ -54,6 +59,9 @@ func (r *articleRepo) GetArticle(ctx context.Context, id uint64) (*biz.Article, 
 		Title:       article.Title,
 		Description: article.Description,
 		Body:        article.Body,
+		CreatedAt:   article.CreatedAt,
+		UpdatedAt:   article.CreatedAt,
+		AuthorID:    article.AuthorID,
 	}, result.Error
 }
 
@@ -75,6 +83,9 @@ func (r *articleRepo) ListArticle(ctx context.Context) ([]*biz.Article, error) {
 			Title:       a.Title,
 			Description: a.Description,
 			Body:        a.Body,
+			CreatedAt:   a.CreatedAt,
+			UpdatedAt:   a.UpdatedAt,
+			AuthorID:    a.AuthorID,
 		}
 		bas = append(bas, &ba)
 	}

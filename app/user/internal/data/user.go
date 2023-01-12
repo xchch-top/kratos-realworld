@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
 	"kratos-realworld/app/user/internal/biz"
+	pkgData "kratos-realworld/pkg/data"
 )
 
 type userRepo struct {
@@ -12,12 +13,16 @@ type userRepo struct {
 }
 
 type User struct {
-	Model
-	Email        string `gorm:"size:500"`
-	Username     string `gorm:"size:500"`
-	Bio          string `gorm:"size:1000"`
-	Image        string `gorm:"size:1000"`
-	PasswordHash string `gorm:"size:500"`
+	pkgData.Model
+	Email        string
+	Username     string
+	Bio          string
+	Image        string
+	PasswordHash string
+}
+
+func (u *User) TableName() string {
+	return "user"
 }
 
 func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
@@ -34,6 +39,7 @@ func (r *userRepo) CreateUser(ctx context.Context, u *biz.User) (*biz.User, erro
 		Bio:          u.Bio,
 		Image:        u.Image,
 		PasswordHash: u.PasswordHash,
+		Model:        *pkgData.NewCreateModel(),
 	}
 	rv := r.data.db.Create(&user)
 	if rv.Error != nil {
@@ -79,9 +85,14 @@ func (r *userRepo) GetUserById(ctx context.Context, id uint64) (*biz.User, error
 }
 
 func (r *userRepo) UpdateUser(ctx context.Context, bizUser *biz.User) error {
-	user := User{Username: bizUser.Username, Email: bizUser.Email, Bio: bizUser.Bio, Image: bizUser.Image}
-	user.Id = bizUser.Id
-	result := r.data.db.Select("username", "email", "bio", "image").Updates(&user)
+	user := User{
+		Username: bizUser.Username,
+		Email:    bizUser.Email,
+		Bio:      bizUser.Bio,
+		Image:    bizUser.Image,
+		Model:    *pkgData.NewUpdateModel(bizUser.Id),
+	}
+	result := r.data.db.Select("username", "email", "bio", "image", "updated_time").Updates(&user)
 
 	return result.Error
 }

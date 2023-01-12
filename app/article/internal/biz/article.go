@@ -5,6 +5,7 @@ import (
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gorm"
+	"time"
 )
 
 type ArticleRepo interface {
@@ -40,21 +41,33 @@ func NewArticleUseCase(ar ArticleRepo, cr CommentRepo, tr TagRepo, logger log.Lo
 type Article struct {
 	Id          uint64
 	Slug        string
-	Title       string `gorm:"size:200"`
-	Description string `gorm:"size:200"`
+	Title       string
+	Description string
 	Body        string
 	AuthorID    uint64
+	Author      Author
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
-func (uc ArticleUseCase) CreateArticle(ctx context.Context, article *Article) (uint64, error) {
+type Author struct {
+	AuthorID  uint64
+	Username  string
+	Bio       string
+	Image     string
+	Following bool
+}
+
+func (uc *ArticleUseCase) CreateArticle(ctx context.Context, article *Article) (*Article, error) {
 	id, err := uc.ar.CreateArticle(ctx, article)
 	if err != nil {
-		return 0, errors.InternalServer("create article", "创建文章失败")
+		return &Article{}, errors.InternalServer("create article", "创建文章失败")
 	}
-	return id, nil
+
+	return uc.GetArticle(ctx, id)
 }
 
-func (uc ArticleUseCase) GetArticle(ctx context.Context, id uint64) (*Article, error) {
+func (uc *ArticleUseCase) GetArticle(ctx context.Context, id uint64) (*Article, error) {
 	article, err := uc.ar.GetArticle(ctx, id)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.NotFound("article not found", "文章未找到")
@@ -65,7 +78,7 @@ func (uc ArticleUseCase) GetArticle(ctx context.Context, id uint64) (*Article, e
 	return article, nil
 }
 
-func (uc ArticleUseCase) GetArticleBySlug(ctx context.Context, slug string) (*Article, error) {
+func (uc *ArticleUseCase) GetArticleBySlug(ctx context.Context, slug string) (*Article, error) {
 	id, err := uc.ar.GetArticleBySlug(ctx, slug)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.NotFound("article not found", "文章未找到")
@@ -76,6 +89,6 @@ func (uc ArticleUseCase) GetArticleBySlug(ctx context.Context, slug string) (*Ar
 	return uc.GetArticle(ctx, id)
 }
 
-func (uc ArticleUseCase) ListArticle(ctx context.Context) ([]*Article, error) {
+func (uc *ArticleUseCase) ListArticle(ctx context.Context) ([]*Article, error) {
 	return uc.ar.ListArticle(ctx)
 }

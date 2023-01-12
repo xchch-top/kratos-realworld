@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/golang/protobuf/ptypes/empty"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	api "kratos-realworld/api/article/service/v1"
 	"kratos-realworld/app/article/internal/biz"
 	"kratos-realworld/pkg/middleware/auth"
@@ -19,6 +20,9 @@ func (s *ArticleService) GetArticle(ctx context.Context, req *api.GetArticleRequ
 			Title:       ba.Title,
 			Description: ba.Description,
 			Body:        ba.Body,
+			CreatedAt:   timestamppb.New(ba.CreatedAt),
+			UpdatedAt:   timestamppb.New(ba.UpdatedAt),
+			Author:      ba.Author,
 		},
 	}, nil
 }
@@ -36,12 +40,7 @@ func (s *ArticleService) CreateArticle(ctx context.Context, req *api.CreateArtic
 		Body:        req.Article.Body,
 		AuthorID:    authUser.Id,
 	}
-	id, err := s.uc.CreateArticle(ctx, &bizArticle)
-	if err != nil {
-		return nil, err
-	}
-
-	ba, err := s.uc.GetArticle(ctx, id)
+	ba, err := s.uc.CreateArticle(ctx, &bizArticle)
 	if err != nil {
 		return nil, err
 	}
@@ -51,6 +50,9 @@ func (s *ArticleService) CreateArticle(ctx context.Context, req *api.CreateArtic
 			Title:       ba.Title,
 			Description: ba.Description,
 			Body:        ba.Body,
+			CreatedAt:   timestamppb.New(ba.CreatedAt),
+			UpdatedAt:   timestamppb.New(ba.UpdatedAt),
+			Author:      ba.Author,
 		},
 	}, nil
 }
@@ -89,6 +91,9 @@ func (s *ArticleService) ListArticles(ctx context.Context, req *api.ListArticles
 			Title:       ba.Title,
 			Description: ba.Description,
 			Body:        ba.Body,
+			CreatedAt:   timestamppb.New(ba.CreatedAt),
+			UpdatedAt:   timestamppb.New(ba.UpdatedAt),
+			Author:      ba.Author,
 		}
 		articles = append(articles, &article)
 	}

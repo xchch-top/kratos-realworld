@@ -71,7 +71,13 @@ func (s *UserService) UpdateUser(ctx context.Context, req *api.UpdateUserReq) (*
 		return nil, err
 	}
 
-	bizUser := &biz.User{Id: authUser.Id, Username: req.Username, Email: req.Email, Image: req.Image, Bio: req.Bio}
+	bizUser := &biz.User{
+		Id:       authUser.Id,
+		Username: req.Username,
+		Email:    req.Email,
+		Image:    req.Image,
+		Bio:      req.Bio,
+	}
 
 	user, err := s.uc.UpdateUser(ctx, bizUser)
 	if err != nil {

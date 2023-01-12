@@ -3,12 +3,13 @@ package data
 import (
 	"github.com/go-kratos/kratos/v2/log"
 	"kratos-realworld/app/article/internal/biz"
+	pkgData "kratos-realworld/pkg/data"
 )
 
 type Tag struct {
-	Model
-	Name     string    `gorm:"size:200;uniqueIndex"`
-	Articles []Article `gorm:"many2many:article_tags;"`
+	pkgData.Model
+	Name     string
+	Articles []Article
 }
 
 type tagRepo struct {
