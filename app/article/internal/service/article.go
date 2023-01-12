@@ -22,7 +22,12 @@ func (s *ArticleService) GetArticle(ctx context.Context, req *api.GetArticleRequ
 			Body:        ba.Body,
 			CreatedAt:   timestamppb.New(ba.CreatedAt),
 			UpdatedAt:   timestamppb.New(ba.UpdatedAt),
-			Author:      ba.Author,
+			Author: &api.Author{
+				Username:  ba.Author.Username,
+				Bio:       ba.Author.Bio,
+				Image:     ba.Author.Image,
+				Following: false,
+			},
 		},
 	}, nil
 }
@@ -52,7 +57,12 @@ func (s *ArticleService) CreateArticle(ctx context.Context, req *api.CreateArtic
 			Body:        ba.Body,
 			CreatedAt:   timestamppb.New(ba.CreatedAt),
 			UpdatedAt:   timestamppb.New(ba.UpdatedAt),
-			Author:      ba.Author,
+			Author: &api.Author{
+				Username:  ba.Author.Username,
+				Bio:       ba.Author.Bio,
+				Image:     ba.Author.Image,
+				Following: false,
+			},
 		},
 	}, nil
 }
@@ -93,7 +103,12 @@ func (s *ArticleService) ListArticles(ctx context.Context, req *api.ListArticles
 			Body:        ba.Body,
 			CreatedAt:   timestamppb.New(ba.CreatedAt),
 			UpdatedAt:   timestamppb.New(ba.UpdatedAt),
-			Author:      ba.Author,
+			Author: &api.Author{
+				Username:  ba.Author.Username,
+				Bio:       ba.Author.Bio,
+				Image:     ba.Author.Image,
+				Following: false,
+			},
 		}
 		articles = append(articles, &article)
 	}

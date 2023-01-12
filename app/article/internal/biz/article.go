@@ -4,7 +4,10 @@ import (
 	"context"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/registry"
+	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"gorm.io/gorm"
+	userApi "kratos-realworld/api/user/service/v1"
 	"time"
 )
 
@@ -25,17 +28,31 @@ type ArticleUseCase struct {
 	ar ArticleRepo
 	cr CommentRepo
 	tr TagRepo
+	uc userApi.UserClient
 
 	log *log.Helper
 }
 
-func NewArticleUseCase(ar ArticleRepo, cr CommentRepo, tr TagRepo, logger log.Logger) *ArticleUseCase {
+func NewArticleUseCase(ar ArticleRepo, cr CommentRepo, tr TagRepo, uc userApi.UserClient, logger log.Logger) *ArticleUseCase {
 	return &ArticleUseCase{
 		ar:  ar,
 		cr:  cr,
 		tr:  tr,
+		uc:  uc,
 		log: log.NewHelper(logger),
 	}
+}
+
+func NewUserClient(r registry.Discovery) userApi.UserClient {
+	conn, err := grpc.DialInsecure(context.Background(),
+		grpc.WithEndpoint("discovery:///realworld.api.user"),
+		grpc.WithDiscovery(r))
+	if err != nil {
+		panic(err)
+	}
+	userClient := userApi.NewUserClient(conn)
+	return userClient
+
 }
 
 type Article struct {
@@ -45,7 +62,7 @@ type Article struct {
 	Description string
 	Body        string
 	AuthorID    uint64
-	Author      Author
+	Author      *Author
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
@@ -74,6 +91,19 @@ func (uc *ArticleUseCase) GetArticle(ctx context.Context, id uint64) (*Article, 
 	}
 	if err != nil {
 		return nil, err
+	}
+
+	author, err := uc.uc.GetUserById(ctx, &userApi.GetUserByIdRequest{Id: article.AuthorID})
+	if err != nil {
+		return nil, errors.InternalServer("author not found", "文章作者不存在")
+	}
+
+	article.Author = &Author{
+		AuthorID:  article.AuthorID,
+		Username:  author.User.Username,
+		Bio:       author.User.Bio,
+		Image:     author.User.Image,
+		Following: false,
 	}
 	return article, nil
 }

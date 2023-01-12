@@ -116,3 +116,18 @@ func (s *UserService) FollowUser(ctx context.Context, req *api.FollowUserRequest
 func (s *UserService) UnfollowUser(ctx context.Context, req *api.UnfollowUserRequest) (*empty.Empty, error) {
 	return nil, nil
 }
+
+func (s *UserService) GetUserById(ctx context.Context, req *api.GetUserByIdRequest) (*api.GetUserReply, error) {
+	bu, err := s.uc.GetUserById(ctx, req.GetId())
+	if err != nil {
+		return nil, err
+	}
+	return &api.GetUserReply{
+		User: &api.GetUserReply_User{
+			Username: bu.Username,
+			Email:    bu.Email,
+			Bio:      bu.Bio,
+			Image:    bu.Image,
+		},
+	}, nil
+}

@@ -28,6 +28,7 @@ type UserClient interface {
 	GetCurrentUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUserReply, error)
 	UpdateUser(ctx context.Context, in *UpdateUserReq, opts ...grpc.CallOption) (*UserLoginReply, error)
 	GetProfile(ctx context.Context, in *GetProfileRequest, opts ...grpc.CallOption) (*ProfileReply, error)
+	GetUserById(ctx context.Context, in *GetUserByIdRequest, opts ...grpc.CallOption) (*GetUserReply, error)
 	FollowUser(ctx context.Context, in *FollowUserRequest, opts ...grpc.CallOption) (*ProfileReply, error)
 	UnfollowUser(ctx context.Context, in *UnfollowUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -85,6 +86,15 @@ func (c *userClient) GetProfile(ctx context.Context, in *GetProfileRequest, opts
 	return out, nil
 }
 
+func (c *userClient) GetUserById(ctx context.Context, in *GetUserByIdRequest, opts ...grpc.CallOption) (*GetUserReply, error) {
+	out := new(GetUserReply)
+	err := c.cc.Invoke(ctx, "/user.service.v1.User/GetUserById", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userClient) FollowUser(ctx context.Context, in *FollowUserRequest, opts ...grpc.CallOption) (*ProfileReply, error) {
 	out := new(ProfileReply)
 	err := c.cc.Invoke(ctx, "/user.service.v1.User/FollowUser", in, out, opts...)
@@ -112,6 +122,7 @@ type UserServer interface {
 	GetCurrentUser(context.Context, *emptypb.Empty) (*GetUserReply, error)
 	UpdateUser(context.Context, *UpdateUserReq) (*UserLoginReply, error)
 	GetProfile(context.Context, *GetProfileRequest) (*ProfileReply, error)
+	GetUserById(context.Context, *GetUserByIdRequest) (*GetUserReply, error)
 	FollowUser(context.Context, *FollowUserRequest) (*ProfileReply, error)
 	UnfollowUser(context.Context, *UnfollowUserRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedUserServer()
@@ -135,6 +146,9 @@ func (UnimplementedUserServer) UpdateUser(context.Context, *UpdateUserReq) (*Use
 }
 func (UnimplementedUserServer) GetProfile(context.Context, *GetProfileRequest) (*ProfileReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProfile not implemented")
+}
+func (UnimplementedUserServer) GetUserById(context.Context, *GetUserByIdRequest) (*GetUserReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserById not implemented")
 }
 func (UnimplementedUserServer) FollowUser(context.Context, *FollowUserRequest) (*ProfileReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FollowUser not implemented")
@@ -245,6 +259,24 @@ func _User_GetProfile_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_GetUserById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserByIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetUserById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.service.v1.User/GetUserById",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetUserById(ctx, req.(*GetUserByIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _User_FollowUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FollowUserRequest)
 	if err := dec(in); err != nil {
@@ -307,6 +339,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetProfile",
 			Handler:    _User_GetProfile_Handler,
+		},
+		{
+			MethodName: "GetUserById",
+			Handler:    _User_GetUserById_Handler,
 		},
 		{
 			MethodName: "FollowUser",

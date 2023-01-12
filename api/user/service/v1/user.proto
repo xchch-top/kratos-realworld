@@ -41,6 +41,12 @@ service User {
         };
     }
 
+    rpc GetUserById (GetUserByIdRequest) returns (GetUserReply) {
+        option (google.api.http) = {
+            get: "/api/user-by-id",
+        };
+    }
+
     rpc FollowUser (FollowUserRequest) returns (ProfileReply) {
         option (google.api.http) = {
             post: "/api/profiles/{username}/follow",
@@ -118,6 +124,10 @@ message RegisterRequest {
 
 message GetProfileRequest {
     string username = 1;
+}
+
+message GetUserByIdRequest {
+    uint64 id = 1;
 }
 
 message FollowUserRequest {

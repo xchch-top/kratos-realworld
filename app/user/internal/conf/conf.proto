@@ -10,6 +10,7 @@ message Bootstrap {
     Server server = 1;
     Data data = 2;
     Jwt jwt = 3;
+    Register register = 4;
 }
 
 message Server {
@@ -36,4 +37,12 @@ message Data {
 
 message Jwt {
     string secret = 1;
+}
+
+message Register {
+    Etcd etcd = 1;
+
+    message Etcd {
+        string endpoints = 1;
+    }
 }

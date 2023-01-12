@@ -23,6 +23,7 @@ const _ = http.SupportPackageIsVersion1
 const OperationUserFollowUser = "/user.service.v1.User/FollowUser"
 const OperationUserGetCurrentUser = "/user.service.v1.User/GetCurrentUser"
 const OperationUserGetProfile = "/user.service.v1.User/GetProfile"
+const OperationUserGetUserById = "/user.service.v1.User/GetUserById"
 const OperationUserLogin = "/user.service.v1.User/Login"
 const OperationUserRegister = "/user.service.v1.User/Register"
 const OperationUserUnfollowUser = "/user.service.v1.User/UnfollowUser"
@@ -32,6 +33,7 @@ type UserHTTPServer interface {
 	FollowUser(context.Context, *FollowUserRequest) (*ProfileReply, error)
 	GetCurrentUser(context.Context, *emptypb.Empty) (*GetUserReply, error)
 	GetProfile(context.Context, *GetProfileRequest) (*ProfileReply, error)
+	GetUserById(context.Context, *GetUserByIdRequest) (*GetUserReply, error)
 	Login(context.Context, *LoginRequest) (*UserLoginReply, error)
 	Register(context.Context, *RegisterRequest) (*UserLoginReply, error)
 	UnfollowUser(context.Context, *UnfollowUserRequest) (*emptypb.Empty, error)
@@ -45,6 +47,7 @@ func RegisterUserHTTPServer(s *http.Server, srv UserHTTPServer) {
 	r.GET("/api/user", _User_GetCurrentUser0_HTTP_Handler(srv))
 	r.PUT("/api/user", _User_UpdateUser0_HTTP_Handler(srv))
 	r.GET("/api/profiles/{username}", _User_GetProfile0_HTTP_Handler(srv))
+	r.GET("/api/user-by-id", _User_GetUserById0_HTTP_Handler(srv))
 	r.POST("/api/profiles/{username}/follow", _User_FollowUser0_HTTP_Handler(srv))
 	r.DELETE("/api/profiles/{username}/follow", _User_UnfollowUser0_HTTP_Handler(srv))
 }
@@ -147,6 +150,25 @@ func _User_GetProfile0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) e
 	}
 }
 
+func _User_GetUserById0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetUserByIdRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationUserGetUserById)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserById(ctx, req.(*GetUserByIdRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetUserReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _User_FollowUser0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in FollowUserRequest
@@ -195,6 +217,7 @@ type UserHTTPClient interface {
 	FollowUser(ctx context.Context, req *FollowUserRequest, opts ...http.CallOption) (rsp *ProfileReply, err error)
 	GetCurrentUser(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetUserReply, err error)
 	GetProfile(ctx context.Context, req *GetProfileRequest, opts ...http.CallOption) (rsp *ProfileReply, err error)
+	GetUserById(ctx context.Context, req *GetUserByIdRequest, opts ...http.CallOption) (rsp *GetUserReply, err error)
 	Login(ctx context.Context, req *LoginRequest, opts ...http.CallOption) (rsp *UserLoginReply, err error)
 	Register(ctx context.Context, req *RegisterRequest, opts ...http.CallOption) (rsp *UserLoginReply, err error)
 	UnfollowUser(ctx context.Context, req *UnfollowUserRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -240,6 +263,19 @@ func (c *UserHTTPClientImpl) GetProfile(ctx context.Context, in *GetProfileReque
 	pattern := "/api/profiles/{username}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationUserGetProfile))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *UserHTTPClientImpl) GetUserById(ctx context.Context, in *GetUserByIdRequest, opts ...http.CallOption) (*GetUserReply, error) {
+	var out GetUserReply
+	pattern := "/api/user-by-id"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationUserGetUserById))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

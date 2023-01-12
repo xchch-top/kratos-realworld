@@ -10,3 +10,6 @@ data:
     dsn: "root:root@tcp(110.42.208.122:13306)/realworld?charset=utf8mb4&parseTime=True&loc=Local"
 jwt:
   secret: hello
+register:
+  etcd:
+    endpoints: "192.168.1.10:12379"
