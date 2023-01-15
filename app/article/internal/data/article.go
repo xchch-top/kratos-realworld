@@ -10,12 +10,11 @@ import (
 
 type Article struct {
 	pkgData.Model
-	Slug        string
-	Title       string
-	Description string
-	Body        string
-	AuthorID    uint64
-	// Author         User
+	Slug           string
+	Title          string
+	Description    string
+	Body           string
+	AuthorID       uint64
 	FavoritesCount uint32
 }
 
@@ -71,9 +70,13 @@ func (r *articleRepo) GetArticleBySlug(ctx context.Context, slug string) (uint64
 	return article.Id, result.Error
 }
 
-func (r *articleRepo) ListArticle(ctx context.Context) ([]*biz.Article, error) {
+func (r *articleRepo) ListArticle(ctx context.Context, listParam *biz.ListParam) ([]*biz.Article, error) {
 	var articles []*Article
-	result := r.data.db.Find(&articles)
+	db := r.data.db
+	if listParam.Tag != "" {
+		db = db.Where("tag = ?", listParam.Tag)
+	}
+	result := db.Find(&articles)
 
 	var bas []*biz.Article
 	for _, a := range articles {

@@ -26,3 +26,18 @@ create table article
     updated_at      datetime     default now() comment '更新时间',
     deleted_at      datetime     default null comment '删除时间'
 );
+
+drop table if exists tag;
+create table tag
+(
+    id   bigint      not null auto_increment primary key,
+    name varchar(20) not null comment 'tag名称',
+);
+
+drop table if exists article_tag;
+create table article_tag
+(
+    id         bigint not null auto_increment primary key,
+    article_id bigint not null,
+    tag_id     bigint not null
+);

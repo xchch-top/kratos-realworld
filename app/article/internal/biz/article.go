@@ -15,13 +15,10 @@ type ArticleRepo interface {
 	CreateArticle(ctx context.Context, article *Article) (uint64, error)
 	GetArticle(ctx context.Context, id uint64) (*Article, error)
 	GetArticleBySlug(ctx context.Context, slug string) (uint64, error)
-	ListArticle(ctx context.Context) ([]*Article, error)
+	ListArticle(ctx context.Context, listParam *ListParam) ([]*Article, error)
 }
 
 type CommentRepo interface {
-}
-
-type TagRepo interface {
 }
 
 type ArticleUseCase struct {
@@ -119,6 +116,30 @@ func (uc *ArticleUseCase) GetArticleBySlug(ctx context.Context, slug string) (*A
 	return uc.GetArticle(ctx, id)
 }
 
-func (uc *ArticleUseCase) ListArticle(ctx context.Context) ([]*Article, error) {
-	return uc.ar.ListArticle(ctx)
+type ListParam struct {
+	Tag string
+}
+
+func (uc *ArticleUseCase) ListArticle(ctx context.Context, listParam *ListParam) ([]*Article, error) {
+	articles, err := uc.ar.ListArticle(ctx, listParam)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, article := range articles {
+		author, err := uc.uc.GetUserById(ctx, &userApi.GetUserByIdRequest{Id: article.AuthorID})
+		if err != nil {
+			log.Errorf("auth %s not found", article.AuthorID)
+
+		} else {
+			article.Author = &Author{
+				AuthorID: article.AuthorID,
+				Username: author.User.Username,
+				Bio:      author.User.Bio,
+				Image:    author.User.Image,
+			}
+		}
+	}
+
+	return articles, err
 }

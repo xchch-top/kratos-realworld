@@ -92,7 +92,10 @@ func (s *ArticleService) FeedArticles(ctx context.Context, req *api.FeedArticles
 }
 
 func (s *ArticleService) ListArticles(ctx context.Context, req *api.ListArticlesRequest) (*api.MultipleArticlesReply, error) {
-	bas, err := s.uc.ListArticle(ctx)
+	listParam := biz.ListParam{
+		Tag: req.Tag,
+	}
+	bas, err := s.uc.ListArticle(ctx, &listParam)
 
 	var articles []*api.ArticleDTO
 	for _, ba := range bas {
@@ -120,7 +123,21 @@ func (s *ArticleService) ListArticles(ctx context.Context, req *api.ListArticles
 }
 
 func (s *ArticleService) GetTags(ctx context.Context, req *empty.Empty) (*api.TagListReply, error) {
-	return nil, nil
+	bizTags, err := s.uc.GetTags(ctx)
+
+	var tagNames []string
+	if err != nil {
+		return &api.TagListReply{
+			Tags: tagNames,
+		}, err
+	}
+
+	for _, bizTag := range bizTags {
+		tagNames = append(tagNames, bizTag.Name)
+	}
+	return &api.TagListReply{
+		Tags: tagNames,
+	}, nil
 }
 
 func (s *ArticleService) FavoriteArticle(ctx context.Context, req *api.FavoriteArticleRequest) (*api.SingleArticleReply, error) {
