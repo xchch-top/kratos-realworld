@@ -72,11 +72,29 @@ func (r *articleRepo) GetArticleBySlug(ctx context.Context, slug string) (uint64
 
 func (r *articleRepo) ListArticle(ctx context.Context, listParam *biz.ListParam) ([]*biz.Article, error) {
 	var articles []*Article
-	db := r.data.db
-	if listParam.Tag != "" {
-		db = db.Where("tag = ?", listParam.Tag)
+	result := r.data.db.Find(&articles)
+
+	var bas []*biz.Article
+	for _, a := range articles {
+		ba := biz.Article{
+			Id:          a.Id,
+			Slug:        a.Slug,
+			Title:       a.Title,
+			Description: a.Description,
+			Body:        a.Body,
+			CreatedAt:   a.CreatedAt,
+			UpdatedAt:   a.UpdatedAt,
+			AuthorID:    a.AuthorID,
+		}
+		bas = append(bas, &ba)
 	}
-	result := db.Find(&articles)
+
+	return bas, result.Error
+}
+
+func (r *articleRepo) ListArticleByTagId(ctx context.Context, tagId uint64) ([]*biz.Article, error) {
+	var articles []*Article
+	result := r.data.db.Joins("left join article_tag on article.id = article_tag.id").Where("article_tag.tag_id = ?", tagId).Find(&articles)
 
 	var bas []*biz.Article
 	for _, a := range articles {

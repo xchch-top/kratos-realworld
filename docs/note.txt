@@ -36,4 +36,5 @@ data层
     包含cache, db等封装, 实现biz的repo接口, 方法的入参和出参都定义在biz层
 
 
-service可以调用同包的方法、data层的方法、其他业务的data层方法、api层的接口
+biz可以调用同包的方法、data层的方法、其他业务的data层方法、api层的接口
+biz层和service层的方法返回要考虑到降级

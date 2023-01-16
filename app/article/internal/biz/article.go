@@ -16,6 +16,7 @@ type ArticleRepo interface {
 	GetArticle(ctx context.Context, id uint64) (*Article, error)
 	GetArticleBySlug(ctx context.Context, slug string) (uint64, error)
 	ListArticle(ctx context.Context, listParam *ListParam) ([]*Article, error)
+	ListArticleByTagId(ctx context.Context, tagId uint64) ([]*Article, error)
 }
 
 type CommentRepo interface {
@@ -121,16 +122,28 @@ type ListParam struct {
 }
 
 func (uc *ArticleUseCase) ListArticle(ctx context.Context, listParam *ListParam) ([]*Article, error) {
-	articles, err := uc.ar.ListArticle(ctx, listParam)
-	if err != nil {
-		return nil, err
+	var articles []*Article
+	var err error
+	if listParam.Tag != "" {
+		bizTag, err := uc.tr.GetByName(ctx, listParam.Tag)
+		if err != nil {
+			return nil, err
+		}
+		articles, err = uc.ar.ListArticleByTagId(ctx, bizTag.Id)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		articles, err = uc.ar.ListArticle(ctx, listParam)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	for _, article := range articles {
 		author, err := uc.uc.GetUserById(ctx, &userApi.GetUserByIdRequest{Id: article.AuthorID})
 		if err != nil {
 			log.Errorf("auth %s not found", article.AuthorID)
-
 		} else {
 			article.Author = &Author{
 				AuthorID: article.AuthorID,
