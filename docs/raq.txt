@@ -1,2 +1,2 @@
 问题一: protoc文件中import报红
-将third_party目录加入到resource root, 操作流程在图片 img/proto文件中import报红.jpg
+将third_party目录加入到resource root, 操作流程 http://mc.xchch.top:6670/download/tech/2301/proto文件中import报红.jpg

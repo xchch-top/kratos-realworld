@@ -1,0 +1,15 @@
+server:
+  http:
+    addr: 0.0.0.0:8002
+    timeout: 1s
+  grpc:
+    addr: 0.0.0.0:9002
+    timeout: 1s
+data:
+  database:
+    dsn: "root:root@tcp(110.42.208.122:13306)/realworld?charset=utf8mb4&parseTime=True&loc=Local"
+jwt:
+  secret: hello
+register:
+  etcd:
+    endpoints: "192.168.1.10:12379"
