@@ -16,7 +16,6 @@ type ArticleRepo interface {
 	GetArticle(ctx context.Context, id uint64) (*Article, error)
 	GetArticleBySlug(ctx context.Context, slug string) (uint64, error)
 	ListArticle(ctx context.Context, listParam *ListParam) ([]*Article, error)
-	ListArticleByTagId(ctx context.Context, tagId uint64) ([]*Article, error)
 }
 
 type CommentRepo interface {
@@ -63,6 +62,7 @@ type Article struct {
 	Author      *Author
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+	TagList     []string
 }
 
 type Author struct {
@@ -76,7 +76,12 @@ type Author struct {
 func (uc *ArticleUseCase) CreateArticle(ctx context.Context, article *Article) (*Article, error) {
 	id, err := uc.ar.CreateArticle(ctx, article)
 	if err != nil {
-		return &Article{}, errors.InternalServer("create article", "创建文章失败")
+		return nil, errors.InternalServer("create article", "创建文章失败")
+	}
+
+	err = uc.SaveTags(ctx, id, article.TagList)
+	if err != nil {
+		return nil, errors.InternalServer("create article", "创建文章失败")
 	}
 
 	return uc.GetArticle(ctx, id)
@@ -95,7 +100,6 @@ func (uc *ArticleUseCase) GetArticle(ctx context.Context, id uint64) (*Article, 
 	if err != nil {
 		return nil, errors.InternalServer("author not found", "文章作者不存在")
 	}
-
 	article.Author = &Author{
 		AuthorID:  article.AuthorID,
 		Username:  author.User.Username,
@@ -103,6 +107,14 @@ func (uc *ArticleUseCase) GetArticle(ctx context.Context, id uint64) (*Article, 
 		Image:     author.User.Image,
 		Following: false,
 	}
+
+	var tagList []string
+	tagList, err = uc.GetTagIdsByArticle(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	article.TagList = tagList
+
 	return article, nil
 }
 
@@ -129,7 +141,7 @@ func (uc *ArticleUseCase) ListArticle(ctx context.Context, listParam *ListParam)
 		if err != nil {
 			return nil, err
 		}
-		articles, err = uc.ar.ListArticleByTagId(ctx, bizTag.Id)
+		articles, err = uc.tr.ListArticleByTagId(ctx, bizTag.Id)
 		if err != nil {
 			return nil, err
 		}

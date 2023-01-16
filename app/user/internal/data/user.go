@@ -99,7 +99,7 @@ func (r *userRepo) UpdateUser(ctx context.Context, bizUser *biz.User) error {
 
 func (r *userRepo) GetUserByName(ctx context.Context, name string) (*biz.User, error) {
 	var user User
-	result := r.data.db.Where("name = ?", name).First(&user)
+	result := r.data.db.Where("username = ?", name).First(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}

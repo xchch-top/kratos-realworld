@@ -20,6 +20,7 @@ func (s *ArticleService) GetArticle(ctx context.Context, req *api.GetArticleRequ
 			Title:       ba.Title,
 			Description: ba.Description,
 			Body:        ba.Body,
+			TagList:     ba.TagList,
 			CreatedAt:   timestamppb.New(ba.CreatedAt),
 			UpdatedAt:   timestamppb.New(ba.UpdatedAt),
 			Author: &api.Author{
@@ -44,6 +45,7 @@ func (s *ArticleService) CreateArticle(ctx context.Context, req *api.CreateArtic
 		Description: req.Article.Description,
 		Body:        req.Article.Body,
 		AuthorID:    authUser.Id,
+		TagList:     req.Article.TagList,
 	}
 	ba, err := s.uc.CreateArticle(ctx, &bizArticle)
 	if err != nil {
@@ -55,6 +57,7 @@ func (s *ArticleService) CreateArticle(ctx context.Context, req *api.CreateArtic
 			Title:       ba.Title,
 			Description: ba.Description,
 			Body:        ba.Body,
+			TagList:     ba.TagList,
 			CreatedAt:   timestamppb.New(ba.CreatedAt),
 			UpdatedAt:   timestamppb.New(ba.UpdatedAt),
 			Author: &api.Author{

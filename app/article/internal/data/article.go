@@ -22,6 +22,16 @@ func (a *Article) TableName() string {
 	return "article"
 }
 
+type ArticleTag struct {
+	Id        uint64 `gorm:"primarykey"`
+	ArticleId uint64
+	TagId     uint64
+}
+
+func (at *ArticleTag) TableName() string {
+	return "article_tag"
+}
+
 type articleRepo struct {
 	data *Data
 	log  *log.Helper
@@ -73,28 +83,6 @@ func (r *articleRepo) GetArticleBySlug(ctx context.Context, slug string) (uint64
 func (r *articleRepo) ListArticle(ctx context.Context, listParam *biz.ListParam) ([]*biz.Article, error) {
 	var articles []*Article
 	result := r.data.db.Find(&articles)
-
-	var bas []*biz.Article
-	for _, a := range articles {
-		ba := biz.Article{
-			Id:          a.Id,
-			Slug:        a.Slug,
-			Title:       a.Title,
-			Description: a.Description,
-			Body:        a.Body,
-			CreatedAt:   a.CreatedAt,
-			UpdatedAt:   a.UpdatedAt,
-			AuthorID:    a.AuthorID,
-		}
-		bas = append(bas, &ba)
-	}
-
-	return bas, result.Error
-}
-
-func (r *articleRepo) ListArticleByTagId(ctx context.Context, tagId uint64) ([]*biz.Article, error) {
-	var articles []*Article
-	result := r.data.db.Joins("left join article_tag on article.id = article_tag.id").Where("article_tag.tag_id = ?", tagId).Find(&articles)
 
 	var bas []*biz.Article
 	for _, a := range articles {

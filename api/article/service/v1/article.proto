@@ -57,8 +57,7 @@ service Article {
 
     rpc GetComments (GetCommentsRequest) returns (MultipleCommentsReply) {
         option (google.api.http) = {
-            post: "/api/articles/{slug}/comments",
-            body: "*",
+            get: "/api/articles/{slug}/comments",
         };
     }
 

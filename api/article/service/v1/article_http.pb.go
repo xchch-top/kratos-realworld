@@ -57,7 +57,7 @@ func RegisterArticleHTTPServer(s *http.Server, srv ArticleHTTPServer) {
 	r.PUT("/api/articles/{slug}", _Article_UpdateArticle0_HTTP_Handler(srv))
 	r.DELETE("/api/articles/{slug}", _Article_DeleteArticle0_HTTP_Handler(srv))
 	r.POST("/api/articles/{slug}/comments", _Article_AddComment0_HTTP_Handler(srv))
-	r.POST("/api/articles/{slug}/comments", _Article_GetComments0_HTTP_Handler(srv))
+	r.GET("/api/articles/{slug}/comments", _Article_GetComments0_HTTP_Handler(srv))
 	r.DELETE("/api/articles/{slug}/comments/{id}", _Article_DeleteComment0_HTTP_Handler(srv))
 	r.POST("/api/articles/{slug}/favorite", _Article_FavoriteArticle0_HTTP_Handler(srv))
 	r.DELETE("/api/articles/{slug}/favorite", _Article_UnfavoriteArticle0_HTTP_Handler(srv))
@@ -212,7 +212,7 @@ func _Article_AddComment0_HTTP_Handler(srv ArticleHTTPServer) func(ctx http.Cont
 func _Article_GetComments0_HTTP_Handler(srv ArticleHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetCommentsRequest
-		if err := ctx.Bind(&in); err != nil {
+		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindVars(&in); err != nil {
@@ -433,10 +433,10 @@ func (c *ArticleHTTPClientImpl) GetArticle(ctx context.Context, in *GetArticleRe
 func (c *ArticleHTTPClientImpl) GetComments(ctx context.Context, in *GetCommentsRequest, opts ...http.CallOption) (*MultipleCommentsReply, error) {
 	var out MultipleCommentsReply
 	pattern := "/api/articles/{slug}/comments"
-	path := binding.EncodeURL(pattern, in, false)
+	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationArticleGetComments))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
